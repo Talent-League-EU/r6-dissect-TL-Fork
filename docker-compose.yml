@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   file-monitor:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile-r6-dissect-runner  # Specify the correct Dockerfile name
     volumes:
       - /etc/TLMRIS/data/pre-exported-data:/etc/TLMRIS/data/pre-exported-data
       - /etc/TLMRIS/data/intermediate-data:/etc/TLMRIS/data/intermediate-data
