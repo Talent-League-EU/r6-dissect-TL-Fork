@@ -10,3 +10,6 @@ if [ $? -eq 0 ]; then
 else
     echo "Failed to change directory to /etc/TLMRIS. The directory may not exist."
 fi
+
+cd /etc/TLMRIS/scripts
+bash dc-deploy.sh

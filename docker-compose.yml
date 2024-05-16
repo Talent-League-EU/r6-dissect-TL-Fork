@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  file-monitor:
+    build: .
+    volumes:
+      - /etc/TLMRIS/data/pre-exported-data:/etc/TLMRIS/data/pre-exported-data
+      - /etc/TLMRIS/data/intermediate-data:/etc/TLMRIS/data/intermediate-data
+    user: root
+    # Optionally add other configurations like network settings or environment variables
