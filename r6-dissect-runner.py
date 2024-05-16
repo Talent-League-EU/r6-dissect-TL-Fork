@@ -3,8 +3,8 @@ import time
 from datetime import datetime
 
 # Paths should use os.path.join to ensure they work across different operating systems
-pre_exported_base = "/etc/TLMRIS/data/pre-exported-data"
-intermediate_data_base = "/etc/TLMRIS/data/intermediate-data"
+pre_exported_base = "data/pre-exported-data"
+intermediate_data_base = "data/intermediate-data"
 
 def handle_directory(directory_path):
     print(f"Checking directory: {directory_path}")
