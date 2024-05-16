@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 80
 
 # Run the script when the container launches
-CMD ["python", "monitor.py"]
+CMD ["python", "r6-dissect-runner.py"]
