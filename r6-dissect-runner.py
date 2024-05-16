@@ -34,7 +34,7 @@ def handle_directory(directory_path):
             return
         
         # Construct the command for valid folders
-        command = f"r6-dissect {os.path.join(pre_exported_base, folder_name)} -o {os.path.join(intermediate_data_base, f'{folder_name}.json')}"
+        command = f"./r6-dissect {os.path.join(pre_exported_base, folder_name)} -o {os.path.join(intermediate_data_base, f'{folder_name}.json')}"
         os.system(command)  # Using os.system here for simplicity; consider subprocess.run for more complex needs
         print(f"Command executed for {folder_name} at {datetime.now()}")
 
