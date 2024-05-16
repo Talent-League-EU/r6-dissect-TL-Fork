@@ -1,3 +1,3 @@
 #!/bin/sh
 
-sudo docker-compose up --build -d
+sudo docker-compose restart --build -d
