@@ -1,0 +1,25 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - main  # Set this to the branch you want to deploy from
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H your.ec2.public.ip.address >> ~/.ssh/known_hosts
+
+    - name: Deploy to EC2
+      run: |
+        rsync -avz --exclude '.git' --exclude 'node_modules' ./ ec2-user@ec2-3-9-24-42.eu-west-2.compute.amazonaws.com:/etc/TLMRIS
