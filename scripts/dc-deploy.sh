@@ -1,3 +1,4 @@
 #!/bin/sh
 
-sudo docker-compose restart --build -d
+sudo docker-compose build
+sudo docker-compose restart -d
