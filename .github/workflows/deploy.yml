@@ -24,4 +24,5 @@ jobs:
       run: |
         ssh ec2-user@ec2-3-9-24-42.eu-west-2.compute.amazonaws.com "mkdir -p /home/ec2-user/r6-dissect-TL-Fork"
         rsync -avz --exclude '.git' --exclude 'node_modules' ./ ec2-user@ec2-3-9-24-42.eu-west-2.compute.amazonaws.com:/home/ec2-user/r6-dissect-TL-Fork
-        ssh ec2-user@ec2-3-9-24-42.eu-west-2.compute.amazonaws.com "sudo mv /home/ec2-user/r6-dissect-TL-Fork /etc/TLMRIS"
+        ssh ec2-user@ec2-3-9-24-42.eu-west-2.compute.amazonaws.com "cd /etc/TLMRIS && sudo find . -maxdepth 1 ! -name 'data' ! -name '.' -exec rm -rf {} +"
+        ssh ec2-user@ec2-3-9-24-42.eu-west-2.compute.amazonaws.com "sudo mv /home/ec2-user/r6-dissect-TL-Fork/* /etc/TLMRIS"
