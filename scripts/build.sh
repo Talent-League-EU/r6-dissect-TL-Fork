@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Create the directory if it does not exist
-sudo mkdir -p /etc/TLMRIS
-
 # Navigate to the specified directory
 cd /etc/TLMRIS
 
