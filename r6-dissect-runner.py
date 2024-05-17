@@ -9,15 +9,18 @@ s3_client = boto3.client('s3')
 @app.route('/api/runner', methods=['POST'])
 def runner():
     bucket_name = 'tlmrisserver'
-    prefix = 'intermediate-data/'
+    prefixes = ['intermediate-data/', 'pre-exported-data/']
 
+    files = {}
     try:
-        response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
-        if 'Contents' in response:
-            files = [content['Key'] for content in response['Contents']]
-            return jsonify(files), 200
-        else:
-            return jsonify({"message": "No files found."}), 200
+        for prefix in prefixes:
+            response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+            if 'Contents' in response:
+                files[prefix] = [content['Key'] for content in response['Contents']]
+            else:
+                files[prefix] = []
+
+        return jsonify(files), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
