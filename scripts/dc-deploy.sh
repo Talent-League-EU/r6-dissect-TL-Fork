@@ -9,6 +9,7 @@ if [ -z "$containers_up" ]; then
     sudo docker-compose up -d
 else
     echo "Containers are running. Restarting them with 'restart' command."
+    sudo docker-compose down -v
     sudo docker-compose build
-    sudo docker-compose restart
+    sudo docker-compose up -d
 fi
