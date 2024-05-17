@@ -43,7 +43,7 @@ async function checkFileExists(bucket, key) {
 }
 
 async function uploadCompleteFile() {
-  const completeFilePath = path.join('uploads', 'upload_complete.txt');
+  const completeFilePath = path.join('upload_complete.txt');
   fs.writeFileSync(completeFilePath, 'Upload Complete');
   await uploadToS3(completeFilePath, `${bucketName}/upload_complete.txt`);
 }
