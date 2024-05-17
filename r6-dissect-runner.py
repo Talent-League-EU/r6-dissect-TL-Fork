@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 import boto3
+import os
 
 app = Flask(__name__)
 
@@ -11,6 +12,11 @@ def runner():
     bucket_name = 'tlmrisserver'
     pre_exported_prefix = 'pre-exported-data/'
     intermediate_prefix = 'intermediate-data/'
+    download_path = './data/pre-exported-data/'
+
+    # Ensure the download path exists
+    if not os.path.exists(download_path):
+        os.makedirs(download_path)
 
     try:
         # List folders in pre-exported-data
@@ -22,9 +28,19 @@ def runner():
         intermediate_files = {content['Key'].split('/')[-1].rsplit('.', 1)[0] for content in intermediate_response.get('Contents', [])}
 
         # Find folders in pre-exported-data that do not have corresponding files in intermediate-data
-        unmatched_folders = [f"{pre_exported_prefix}{folder}/" for folder in pre_exported_folders if folder not in intermediate_files]
+        unmatched_folders = [folder for folder in pre_exported_folders if folder not in intermediate_files]
 
-        return jsonify(unmatched_folders), 200
+        # Download unmatched folders
+        for folder in unmatched_folders:
+            folder_prefix = f"{pre_exported_prefix}{folder}/"
+            folder_contents = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=folder_prefix)
+            for content in folder_contents.get('Contents', []):
+                key = content['Key']
+                download_file_path = os.path.join(download_path, key[len(pre_exported_prefix):])
+                os.makedirs(os.path.dirname(download_file_path), exist_ok=True)
+                s3_client.download_file(bucket_name, key, download_file_path)
+
+        return jsonify({"downloaded_folders": unmatched_folders}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
