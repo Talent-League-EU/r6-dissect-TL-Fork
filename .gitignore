@@ -33,3 +33,6 @@
 # Always include requirements.txt, even if other rules might match
 !requirements.txt
 
+# exclude upload_complete.txt
+upload_complete.txt
+
