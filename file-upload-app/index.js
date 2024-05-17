@@ -19,9 +19,12 @@ app.use(express.static('public'));
 
 const upload = multer({ dest: 'uploads/' });
 
-async function uploadToS3(sourcePath, s3Path) {
+async function uploadToS3(sourcePath, s3Path, isRecursive = true) {
   return new Promise((resolve, reject) => {
-    exec(`aws s3 cp ${sourcePath} s3://${s3Path} --recursive`, (error, stdout, stderr) => {
+    const command = isRecursive 
+      ? `aws s3 cp ${sourcePath} s3://${s3Path} --recursive` 
+      : `aws s3 cp ${sourcePath} s3://${s3Path}`;
+    exec(command, (error, stdout, stderr) => {
       if (error) {
         return reject(error);
       }
@@ -43,15 +46,16 @@ async function checkFileExists(bucket, key) {
 }
 
 async function uploadCompleteFile() {
-  const completeFilePath = path.join('upload_complete.txt');
+  const completeFilePath = path.join(__dirname, 'upload_complete.txt');
   fs.writeFileSync(completeFilePath, 'Upload Complete');
-  await uploadToS3(completeFilePath, `${bucketName}/upload_complete.txt`);
+  await uploadToS3(completeFilePath, `${bucketName}/upload_complete.txt`, false);
 }
 
 app.post('/upload', upload.array('zipfiles'), async (req, res) => {
   const teamName = req.body.team;
   const files = req.files;
   const uploadPromises = [];
+  let allUploadsSuccessful = true;
 
   const fileNames = files.map(f => f.originalname);
   const duplicates = fileNames.filter((name, index) => fileNames.indexOf(name) !== index);
@@ -94,25 +98,30 @@ app.post('/upload', upload.array('zipfiles'), async (req, res) => {
       uploadPromises.push(unzipAndUpload);
     }
 
-    await Promise.all(uploadPromises);
-    
-    // Check if there are any pending uploads
-    const lockFileExists = await checkFileExists(bucketName, 'upload.lock');
-    if (!lockFileExists) {
-      await s3.putObject({
-        Bucket: bucketName,
-        Key: 'upload.lock',
-        Body: 'lock',
-      }).promise();
+    await Promise.all(uploadPromises).catch(err => {
+      allUploadsSuccessful = false;
+      throw err;
+    });
 
-      // Check again if there are pending uploads before uploading the complete file
-      setTimeout(async () => {
-        const stillLockFileExists = await checkFileExists(bucketName, 'upload.lock');
-        if (stillLockFileExists) {
-          await uploadCompleteFile();
-          await s3.deleteObject({ Bucket: bucketName, Key: 'upload.lock' }).promise();
-        }
-      }, 5000);
+    if (allUploadsSuccessful) {
+      // Check if there are any pending uploads
+      const lockFileExists = await checkFileExists(bucketName, 'upload.lock');
+      if (!lockFileExists) {
+        await s3.putObject({
+          Bucket: bucketName,
+          Key: 'upload.lock',
+          Body: 'lock',
+        }).promise();
+
+        // Check again if there are pending uploads before uploading the complete file
+        setTimeout(async () => {
+          const stillLockFileExists = await checkFileExists(bucketName, 'upload.lock');
+          if (stillLockFileExists) {
+            await uploadCompleteFile();
+            await s3.deleteObject({ Bucket: bucketName, Key: 'upload.lock' }).promise();
+          }
+        }, 5000);
+      }
     }
 
     res.send('Upload successful');
