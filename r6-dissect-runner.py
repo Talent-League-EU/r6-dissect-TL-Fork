@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 import boto3
 import os
 import subprocess
+import shutil
 
 app = Flask(__name__)
 
@@ -50,7 +51,14 @@ def runner():
             command = f"./r6-dissect {input_path} -o {output_path}"
             subprocess.run(command, shell=True, check=True)
 
-        return jsonify({"downloaded_and_processed_folders": unmatched_folders}), 200
+            # Upload the JSON file to S3
+            s3_client.upload_file(output_path, bucket_name, f"{intermediate_prefix}{folder}.json")
+
+            # Delete local copies of the folder and files
+            shutil.rmtree(input_path)  # Remove the entire folder in pre-exported-data
+            os.remove(output_path)  # Remove the generated JSON file in intermediate-data
+
+        return jsonify({"processed_folders": unmatched_folders}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
