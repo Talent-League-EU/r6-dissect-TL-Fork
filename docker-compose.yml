@@ -8,5 +8,7 @@ services:
     volumes:
       - /etc/TLMRIS/data/pre-exported-data:/etc/TLMRIS/data/pre-exported-data
       - /etc/TLMRIS/data/intermediate-data:/etc/TLMRIS/data/intermediate-data
+    ports:
+      - "5000:5000"
     user: root
     # Optionally add other configurations like network settings or environment variables
