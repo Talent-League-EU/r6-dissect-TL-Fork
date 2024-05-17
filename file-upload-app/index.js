@@ -10,7 +10,7 @@ const app = express();
 const port = 5001;
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use(express.static('public')); // Ensure static files are served
 
 const upload = multer({ dest: 'uploads/' });
 

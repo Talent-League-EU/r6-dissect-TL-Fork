@@ -4,16 +4,92 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>File Upload</title>
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    .bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+    .content {
+      position: relative;
+      z-index: 1;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.6);
+      max-width: 600px;
+      margin: auto;
+      border-radius: 10px;
+    }
+    form {
+      margin-top: 20px;
+    }
+    .instructions {
+      text-align: left;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-  <form action="/upload" method="post" enctype="multipart/form-data">
-    <input type="file" name="zipfile" accept=".zip" required />
-    <select name="team" required>
-      <option value="g2">G2</option>
-      <option value="fnatic">Fnatic</option>
-      <option value="liquid">Team Liquid</option>
-    </select>
-    <button type="submit">Upload</button>
-  </form>
+  <video autoplay muted loop class="bg-video">
+    <source src="BG.mp4" type="video/mp4">
+    Your browser does not support HTML5 video.
+  </video>
+  <div class="content">
+    <h1>Upload Match Replay</h1>
+    <div class="instructions">
+      <p>1. Open the match replay folder</p>
+      <p>2. Enter the folder of the match you want to upload</p>
+      <p>3. Select all files</p>
+      <p>4. Use 7zip or your software of choice to compress the files into a zip file</p>
+      <p>5. Rename the file: "YOURTEAMNAME-vs-ENEMYTEAMNAME.zip"</p>
+      <p>6. Upload the file</p>
+      <p>7. Pick your team name</p>
+      <p>8. Press upload button</p>
+      <p>9. Wait for upload confirmation</p>
+      <p>10. You are free to close your browser</p>
+    </div>
+    <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+      <input type="file" name="zipfile" accept=".zip" required />
+      <select name="team" required>
+        <option value="g2">G2</option>
+        <option value="fnatic">Fnatic</option>
+        <option value="liquid">Team Liquid</option>
+      </select>
+      <button type="submit">Upload</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('uploadForm').onsubmit = function (event) {
+      event.preventDefault();
+      var formData = new FormData(this);
+
+      fetch('/upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.text())
+      .then(data => {
+        if (data === 'Upload successful') {
+          alert('File upload succeeded');
+        } else {
+          alert('Error: ' + data);
+        }
+      })
+      .catch(error => {
+        alert('An error occurred: ' + error);
+      });
+    }
+  </script>
 </body>
 </html>
