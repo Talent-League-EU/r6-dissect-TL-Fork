@@ -9,18 +9,22 @@ s3_client = boto3.client('s3')
 @app.route('/api/runner', methods=['POST'])
 def runner():
     bucket_name = 'tlmrisserver'
-    prefixes = ['intermediate-data/', 'pre-exported-data/']
+    pre_exported_prefix = 'pre-exported-data/'
+    intermediate_prefix = 'intermediate-data/'
 
-    files = {}
     try:
-        for prefix in prefixes:
-            response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
-            if 'Contents' in response:
-                files[prefix] = [content['Key'] for content in response['Contents']]
-            else:
-                files[prefix] = []
+        # List folders in pre-exported-data
+        pre_exported_response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=pre_exported_prefix, Delimiter='/')
+        pre_exported_folders = {content['Prefix'].rstrip('/').split('/')[-1] for content in pre_exported_response.get('CommonPrefixes', [])}
 
-        return jsonify(files), 200
+        # List files in intermediate-data
+        intermediate_response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=intermediate_prefix)
+        intermediate_files = {content['Key'].split('/')[-1].rsplit('.', 1)[0] for content in intermediate_response.get('Contents', [])}
+
+        # Find folders in pre-exported-data that do not have corresponding files in intermediate-data
+        unmatched_folders = [f"{pre_exported_prefix}{folder}/" for folder in pre_exported_folders if folder not in intermediate_files]
+
+        return jsonify(unmatched_folders), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
