@@ -13,5 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of your application's source code from your host to your filesystem.
 COPY . .
 
+# Expose port 5000 for the Flask app
+EXPOSE 5000
+
 # Run the script when the container launches
 CMD ["python", "r6-dissect-runner.py"]

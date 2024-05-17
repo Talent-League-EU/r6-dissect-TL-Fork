@@ -4,11 +4,12 @@ services:
   file-monitor:
     build:
       context: .
-      dockerfile: Dockerfile-r6-dissect-runner  # Specify the correct Dockerfile name
+      dockerfile: Dockerfile-r6-dissect-runner  # Ensure the Dockerfile name matches
     volumes:
       - /etc/TLMRIS/data/pre-exported-data:/etc/TLMRIS/data/pre-exported-data
       - /etc/TLMRIS/data/intermediate-data:/etc/TLMRIS/data/intermediate-data
     ports:
       - "5000:5000"
     user: root
-    # Optionally add other configurations like network settings or environment variables
+    environment:
+      - FLASK_ENV=development  # Optionally set Flask environment variables
