@@ -10,3 +10,13 @@ services:
     user: root
     environment:
       - FLASK_ENV=development  # Optionally set Flask environment variables
+    
+  file-upload:
+    build:
+      context: .
+      dockerfile: file-upload-app\Dockerfile-file-upload
+    ports:
+      - "5001:5001"
+    user: root
+    environment:
+      - NODE_ENV=development
