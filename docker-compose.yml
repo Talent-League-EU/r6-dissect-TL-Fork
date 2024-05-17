@@ -5,9 +5,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-r6-dissect-runner  # Ensure the Dockerfile name matches
-    volumes:
-      - /etc/TLMRIS/data/pre-exported-data:/etc/TLMRIS/data/pre-exported-data
-      - /etc/TLMRIS/data/intermediate-data:/etc/TLMRIS/data/intermediate-data
     ports:
       - "5000:5000"
     user: root
