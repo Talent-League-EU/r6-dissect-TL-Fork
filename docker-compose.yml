@@ -4,12 +4,12 @@ services:
   file-monitor:
     build:
       context: .
-      dockerfile: Dockerfile-r6-dissect-runner  # Ensure the Dockerfile name matches
+      dockerfile: Dockerfile-r6-dissect-runner
     ports:
       - "5000:5000"
     user: root
     environment:
-      - FLASK_ENV=development  # Optionally set Flask environment variables
+      - FLASK_ENV=development
     
   file-upload:
     build:
@@ -20,3 +20,13 @@ services:
     user: root
     environment:
       - NODE_ENV=development
+
+  file-export:
+    build:
+      context: .
+      dockerfile: Dockerfile-r6-dissect-export-runner
+    ports:
+      - "5002:5002"  # Expose on port 5002 externally, but the app runs on 5000 internally
+    user: root
+    environment:
+      - FLASK_ENV=development
