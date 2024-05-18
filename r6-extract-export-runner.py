@@ -16,7 +16,7 @@ def list_s3_files(bucket):
     # Extract just the file names without extensions
     return {file.rsplit('.', 1)[0] for file in files}
 
-@app.route('/api/runner', methods=['GET'])
+@app.route('/api/runner', methods=['POST'])
 def runner():
     # Define the buckets
     intermediate_data_bucket = "s3://tlmrisserver/intermediate-data/"
