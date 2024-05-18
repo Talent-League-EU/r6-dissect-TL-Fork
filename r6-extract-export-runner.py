@@ -22,14 +22,18 @@ def runner():
     intermediate_data_bucket = "s3://tlmrisserver/intermediate-data/"
     post_exported_data_bucket = "s3://tlmrisserver/post-exported-data/"
 
-    # Get list of files from both buckets
+    # Get list of files from both buckets, filenames without extensions
     intermediate_files = list_s3_files(intermediate_data_bucket)
     post_exported_files = list_s3_files(post_exported_data_bucket)
 
-    # Compare files and find those only in the intermediate-data bucket
-    unique_files = intermediate_files - post_exported_files
+    # Convert lists to sets for set operation
+    intermediate_files_set = set(intermediate_files)
+    post_exported_files_set = set(post_exported_files)
 
-    # Print paths of unique files in intermediate-data
+    # Find files present in intermediate-data but not in post-exported-data
+    unique_files = intermediate_files_set - post_exported_files_set
+
+    # Print paths of unique files (with a placeholder for the original file extension)
     for file in unique_files:
         print(f"{intermediate_data_bucket}{file}")
 
