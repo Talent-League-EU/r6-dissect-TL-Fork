@@ -7,6 +7,8 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY r6-extract-export-runner.py /app
 
+RUN mkdir /app/data
+
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir flask awscli
 

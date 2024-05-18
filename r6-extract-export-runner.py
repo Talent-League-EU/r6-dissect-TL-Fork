@@ -1,7 +1,21 @@
-from flask import Flask, jsonify
+from flask import Flask
 import subprocess
+import os
 
 app = Flask(__name__)
+
+def download_s3_file(bucket, file, local_path):
+    # Full path to the file on S3
+    s3_file_path = f"{bucket}{file}"
+    # Local path to save the file
+    local_file_path = os.path.join(local_path, file)
+    # AWS CLI command to download the file
+    cmd = f"aws s3 cp {s3_file_path} {local_file_path}"
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    if result.returncode != 0:
+        print(f"Failed to download {file}: {result.stderr}")
+    else:
+        print(f"Successfully downloaded {file} to {local_file_path}")
 
 def list_s3_files(bucket):
     # Using the AWS CLI to list files in the bucket
@@ -12,17 +26,18 @@ def list_s3_files(bucket):
         return []
     lines = result.stdout.split('\n')
     # Extract file names without their paths or extensions
-    files = [line.split()[-1].split('/')[-1].rsplit('.', 1)[0] for line in lines if line.strip()]
+    files = [line.split()[-1] for line in lines if line.strip()]
     return files
 
 @app.route('/api/runner', methods=['POST'])
 def runner():
+    # Ensure the /data directory exists
+    data_directory = "/data"
+    os.makedirs(data_directory, exist_ok=True)
+
     # Define the buckets
     intermediate_data_bucket = "s3://tlmrisserver/intermediate-data/"
     post_exported_data_bucket = "s3://tlmrisserver/post-exported-data/"
-
-    # Print start message
-    print("Starting the comparison of S3 bucket files.")
 
     # Get list of files from both buckets
     intermediate_files = list_s3_files(intermediate_data_bucket)
@@ -35,15 +50,11 @@ def runner():
     # Find files present in intermediate-data but not in post-exported-data
     unique_files = intermediate_files_set - post_exported_files_set
 
-    # Print and collect unique files for response
-    response_files = []
+    # Download unique files
     for file in unique_files:
-        file_path = f"{intermediate_data_bucket}{file}"
-        print(f"Unique file in intermediate-data: {file_path}")
-        response_files.append(file_path)
+        download_s3_file(intermediate_data_bucket, file, data_directory)
 
-    # Return the list of unique files in the response
-    return jsonify(response_files)
+    return "File download complete!"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5002)
