@@ -9,12 +9,13 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 
 def download_s3_file(bucket, file, local_path):
-    # Full path to the file on S3
-    s3_file_path = f"{bucket}{file}"
+    # Construct the full path to the file on S3
+    s3_file_path = os.path.join(bucket, file)  # This ensures no duplicate paths
     print(f"Downloading {s3_file_path} to {local_path}")
     logging.info(f"Downloading {s3_file_path} to {local_path}")
     # Local path to save the file
-    local_file_path = os.path.join(local_path, file)
+    local_file_name = os.path.basename(file)
+    local_file_path = os.path.join(local_path, local_file_name)
     # AWS CLI command to download the file
     cmd = f"aws s3 cp {s3_file_path} {local_file_path}"
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
@@ -34,7 +35,7 @@ def list_s3_files(bucket):
         logging.error(f"Error listing S3 bucket contents: {result.stderr}")
         return []
     lines = result.stdout.split('\n')
-    # Extract file names without their paths or extensions
+    # Extract just the file names, not the full paths
     files = [line.split()[-1] for line in lines if line.strip()]
     return files
 
@@ -44,9 +45,9 @@ def runner():
     data_directory = "/data"
     os.makedirs(data_directory, exist_ok=True)
 
-    # Define the buckets
-    intermediate_data_bucket = "s3://tlmrisserver/intermediate-data/"
-    post_exported_data_bucket = "s3://tlmrisserver/post-exported-data/"
+    # Define the buckets without trailing slashes or duplicates
+    intermediate_data_bucket = "s3://tlmrisserver/intermediate-data"
+    post_exported_data_bucket = "s3://tlmrisserver/post-exported-data"
 
     # Get list of files from both buckets
     intermediate_files = list_s3_files(intermediate_data_bucket)
