@@ -4,6 +4,7 @@ import os
 import json
 import csv
 import logging
+from openpyxl import Workbook
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -24,24 +25,36 @@ def download_s3_file(bucket, file, local_path):
     else:
         print(f"Successfully downloaded {file} to {local_file_path}")
         logging.info(f"Successfully downloaded {file} to {local_file_path}")
-        process_json_to_csv(local_file_path)
+        process_json_to_xlsx(local_file_path)
 
-def process_json_to_csv(json_path):
+def process_json_to_xlsx(json_path):
     with open(json_path, 'r') as json_file:
         data = json.load(json_file)
 
-    csv_path = json_path.replace('.json', '.csv')
-    with open(csv_path, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(['TEAMS'])  # Write the header
-
-        first_match = data['rounds'][0] if data['rounds'] else None
-        if first_match:
-            for team in first_match.get('teams', []):
-                writer.writerow([team.get('name', 'No Team Name')])
+    xlsx_path = json_path.replace('.json', '.xlsx')
+    wb = Workbook()
     
-    print(f"CSV file saved to {csv_path}")
+    # Remove default sheet
+    wb.remove(wb.active)
+    
+    # Create sheets
+    ws_stats = wb.create_sheet("Stats")
+    ws_per_round = wb.create_sheet("Per Round")
+    ws_per_match = wb.create_sheet("Per Match")
+    
+    # Write headers to the Stats sheet
+    ws_stats.append(['TEAMS'])  # Column header
 
+    # If there are rounds, process the first one to get team names
+    first_match = data['rounds'][0] if data['rounds'] else None
+    if first_match:
+        teams = first_match.get('teams', [])
+        for team in teams:
+            ws_stats.append([team.get('name', 'No Team Name')])  # Add team names
+
+    # Save the workbook
+    wb.save(xlsx_path)
+    print(f"Excel file saved to {xlsx_path}")
 
 
 def list_s3_files(bucket):
