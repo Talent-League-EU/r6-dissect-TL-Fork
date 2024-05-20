@@ -10,7 +10,7 @@ COPY r6-extract-export-runner.py /app
 RUN mkdir /app/data
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir flask awscli
+RUN pip install --no-cache-dir flask awscli openpyxl
 
 # Make port 5000 available to the world outside this container
 EXPOSE 5000

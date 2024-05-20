@@ -1,4 +1,3 @@
 watchdog
 flask
 boto3
-openpyxl
