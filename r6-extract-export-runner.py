@@ -29,18 +29,20 @@ def download_s3_file(bucket, file, local_path):
 def process_json_to_csv(json_path):
     with open(json_path, 'r') as json_file:
         data = json.load(json_file)
-        
+
     csv_path = json_path.replace('.json', '.csv')
-    with open(csv_path, 'w', newline='') as csvfile:
-        fieldnames = ['team_name']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        
-        for match in data.get('rounds', []):
-            for team in match.get('teams', []):
-                writer.writerow({
-                    'team_name': team.get('name')
-                })
+    with open(csv_path, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['TEAMS'])  # Write the header
+
+        first_match = data['rounds'][0] if data['rounds'] else None
+        if first_match:
+            for team in first_match.get('teams', []):
+                writer.writerow([team.get('name', 'No Team Name')])
+    
+    print(f"CSV file saved to {csv_path}")
+
+
 
 def list_s3_files(bucket):
     cmd = f"aws s3 ls {bucket} --recursive"
