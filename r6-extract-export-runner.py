@@ -70,7 +70,7 @@ def runner():
 
     # Download unique files
     for file in unique_files:
-        download_s3_file(intermediate_data_bucket, file, data_directory)
+        download_s3_file("s3://tlmrisserver/", file, data_directory)
 
     return "File download complete!"
 
