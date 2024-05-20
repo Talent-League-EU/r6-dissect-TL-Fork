@@ -7,6 +7,7 @@ app = Flask(__name__)
 def download_s3_file(bucket, file, local_path):
     # Full path to the file on S3
     s3_file_path = f"{bucket}{file}"
+    print(f"Downloading {s3_file_path} to {local_path}")
     # Local path to save the file
     local_file_path = os.path.join(local_path, file)
     # AWS CLI command to download the file
@@ -43,12 +44,17 @@ def runner():
     intermediate_files = list_s3_files(intermediate_data_bucket)
     post_exported_files = list_s3_files(post_exported_data_bucket)
 
+    print(f"Intermediate files: {intermediate_files}")
+    print(f"Post-exported files: {post_exported_files}")
+
     # Convert lists to sets for set operation
     intermediate_files_set = set(intermediate_files)
     post_exported_files_set = set(post_exported_files)
 
     # Find files present in intermediate-data but not in post-exported-data
     unique_files = intermediate_files_set - post_exported_files_set
+
+    print(f"Unique files: {unique_files}")
 
     # Download unique files
     for file in unique_files:
