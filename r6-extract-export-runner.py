@@ -42,7 +42,7 @@ def list_s3_files(bucket):
 @app.route('/api/runner', methods=['POST'])
 def runner():
     # Ensure the /data directory exists
-    data_directory = "/data"
+    data_directory = "/app/data"
     os.makedirs(data_directory, exist_ok=True)
 
     # Define the buckets without trailing slashes or duplicates
