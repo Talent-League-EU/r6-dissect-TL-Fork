@@ -1,6 +1,10 @@
 from flask import Flask
 import subprocess
 import os
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 
@@ -8,6 +12,7 @@ def download_s3_file(bucket, file, local_path):
     # Full path to the file on S3
     s3_file_path = f"{bucket}{file}"
     print(f"Downloading {s3_file_path} to {local_path}")
+    logging.info(f"Downloading {s3_file_path} to {local_path}")
     # Local path to save the file
     local_file_path = os.path.join(local_path, file)
     # AWS CLI command to download the file
@@ -15,8 +20,10 @@ def download_s3_file(bucket, file, local_path):
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     if result.returncode != 0:
         print(f"Failed to download {file}: {result.stderr}")
+        logging.error(f"Failed to download {file}: {result.stderr}")
     else:
         print(f"Successfully downloaded {file} to {local_file_path}")
+        logging.info(f"Successfully downloaded {file} to {local_file_path}")
 
 def list_s3_files(bucket):
     # Using the AWS CLI to list files in the bucket
@@ -24,6 +31,7 @@ def list_s3_files(bucket):
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     if result.returncode != 0:
         print(f"Error listing S3 bucket contents: {result.stderr}")
+        logging.error(f"Error listing S3 bucket contents: {result.stderr}")
         return []
     lines = result.stdout.split('\n')
     # Extract file names without their paths or extensions
@@ -45,7 +53,9 @@ def runner():
     post_exported_files = list_s3_files(post_exported_data_bucket)
 
     print(f"Intermediate files: {intermediate_files}")
+    logging.info(f"Intermediate files: {intermediate_files}")
     print(f"Post-exported files: {post_exported_files}")
+    logging.info(f"Post-exported files: {post_exported_files}")
 
     # Convert lists to sets for set operation
     intermediate_files_set = set(intermediate_files)
@@ -55,6 +65,7 @@ def runner():
     unique_files = intermediate_files_set - post_exported_files_set
 
     print(f"Unique files: {unique_files}")
+    logging.info(f"Unique files: {unique_files}")
 
     # Download unique files
     for file in unique_files:
