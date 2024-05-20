@@ -43,14 +43,26 @@ def process_json_to_xlsx(json_path):
     ws_per_match = wb.create_sheet("Per Match")
     
     # Write headers to the Stats sheet
-    ws_stats.append(['TEAMS'])  # Column header
+    ws_stats.append(['TEAMS', 'PLAYERS'])  # Column headers
 
-    # If there are rounds, process the first one to get team names
+    # Initialize a list to collect player names (to avoid duplicates)
+    player_names = []
+
+    # If there are rounds, process the first one to get team names and players
     first_match = data['rounds'][0] if data['rounds'] else None
     if first_match:
         teams = first_match.get('teams', [])
-        for team in teams:
-            ws_stats.append([team.get('name', 'No Team Name')])  # Add team names
+        players = first_match.get('players', [])
+
+        # Get all unique player names from the first match
+        player_names = [player.get('username', 'No Username') for player in players]
+
+        # Write team and player names to the Stats sheet
+        max_length = max(len(teams), len(player_names))
+        for i in range(max_length):
+            team_name = teams[i].get('name', 'No Team Name') if i < len(teams) else ""
+            player_name = player_names[i] if i < len(player_names) else ""
+            ws_stats.append([team_name, player_name])
 
     # Save the workbook
     wb.save(xlsx_path)
