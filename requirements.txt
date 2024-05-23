@@ -1,3 +1,0 @@
-watchdog
-flask
-boto3
