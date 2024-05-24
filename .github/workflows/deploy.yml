@@ -20,6 +20,10 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H ec2-35-177-150-58.eu-west-2.compute.amazonaws.com >> ~/.ssh/known_hosts
 
+    - name: Print raw service account JSON (for debugging)
+      run: |
+        echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}"
+
     - name: Base64 encode the service account JSON
       run: |
         printf '%s' "${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}" | base64 > service-account-file.json.base64
