@@ -15,7 +15,8 @@ COPY sheets-export-runner/requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code into the container at /app
-COPY sheets-export-runner/. /app
+COPY sheets-export-runner/sheet-exporter.py /app/
+COPY sheets-export-runner/service-account-file.json /app/
 
 # Expose port 5003 for the Flask application
 EXPOSE 5003
