@@ -29,6 +29,7 @@ def run_aws_cli_command(command):
 
 def download_file_from_s3(bucket, key, local_path):
     command = f"aws s3 cp s3://{bucket}/{key} {local_path}"
+    print(f"Downloading file from S3: {command}")
     return run_aws_cli_command(command)
 
 def upload_file_to_s3(bucket, key, local_path):
