@@ -152,6 +152,9 @@ def runner():
     for file_path in local_file_paths:
         os.remove(file_path)
 
+    # Print the sheet link to the console
+    print(f"Google Sheet URL: {sheet_link}")
+
     return jsonify({'status': 'success', 'sheet_link': sheet_link})
 
 if __name__ == '__main__':
