@@ -16,6 +16,7 @@ fi
 
 
 cd /etc/TLMRIS/scripts
+echo "Running autorun.sh"
 chmod +x autorun.sh
 
 
