@@ -96,9 +96,11 @@ def runner():
     # Step 1: Download the export file from S3
     download_file_from_s3(BUCKET_NAME, EXPORT_FILE, EXPORT_FILE)
 
+    EXPORT_FILE_NEW = f"/app/{EXPORT_FILE}"
+
     # Step 2: Read the contents of the export file
     try:
-        with open(EXPORT_FILE, 'r') as file:
+        with open(EXPORT_FILE_NEW, 'r') as file:
             exported_files = file.read().splitlines()
             print(f"Exported Files: {exported_files}")
     except FileNotFoundError:
@@ -118,6 +120,7 @@ def runner():
     local_file_paths = []
     for file in new_files:
         local_path = os.path.basename(file)
+        local_path = f"/app/{local_path}"
         download_file_from_s3(BUCKET_NAME, file, local_path)
         local_file_paths.append(local_path)
 
@@ -126,7 +129,7 @@ def runner():
         sheet_link = create_google_sheet_from_files(local_file_paths)
 
         # Step 6: Update the export file and upload it back to S3
-        with open(EXPORT_FILE, 'a') as file:
+        with open(EXPORT_FILE_NEW, 'a') as file:
             for file_name in new_files:
                 file.write(f"{file_name},{sheet_link}\n")
 
