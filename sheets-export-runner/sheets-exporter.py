@@ -1,12 +1,18 @@
-from flask import Flask, request, jsonify
-import subprocess
 import os
-import boto3
-from googleapiclient.discovery import build
+import json
 from google.oauth2.service_account import Credentials
+from googleapiclient.discovery import build
+from flask import Flask, request, jsonify
+import boto3
 
 app = Flask(__name__)
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+
+# Read the JSON content from an environment variable
+service_account_info = json.loads(os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON'))
+credentials = Credentials.from_service_account_info(service_account_info)
+
+# Initialize the Sheets API
+service = build('sheets', 'v4', credentials=credentials)
 
 BUCKET_NAME = "tlmrisserver"
 EXPORT_FILE = "exported-to-sheets-sheets.txt"
@@ -14,15 +20,6 @@ POST_EXPORT_BUCKET = "tlmrisserver/post-exported-data/"
 
 # Initialize AWS S3 client
 s3 = boto3.client('s3')
-
-# Path to your service account JSON file
-SERVICE_ACCOUNT_FILE = 'service-account-file.json'
-
-# Initialize Google Sheets API client
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-credentials = Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-service = build('sheets', 'v4', credentials=credentials)
 
 def download_file_from_s3(bucket, key, local_path):
     s3.download_file(bucket, key, local_path)
@@ -96,4 +93,4 @@ def runner():
     return jsonify({'status': 'success', 'sheet_link': sheet_link})
 
 if __name__ == '__main__':
-    app.run(port=5003)
+    app.run(host='0.0.0.0', port=5003)

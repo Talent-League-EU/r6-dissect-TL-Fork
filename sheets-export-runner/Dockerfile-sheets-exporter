@@ -9,13 +9,13 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Copy the requirements.txt file into the container at /app
-COPY sheets-export-runner/requirements.txt /app/
+COPY requirements.txt /app/
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code into the container at /app
-COPY sheets-export-runner/. /app/
+COPY . /app
 
 # Expose port 5003 for the Flask application
 EXPOSE 5003
