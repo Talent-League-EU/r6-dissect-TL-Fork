@@ -22,7 +22,7 @@ jobs:
 
     - name: Set environment variable and run Docker Compose
       run: |
-        ssh ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com "export GOOGLE_SERVICE_ACCOUNT_JSON='${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}'
+        ssh ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com "export GOOGLE_SERVICE_ACCOUNT_JSON='${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}'"
 
     - name: Deploy to EC2
       run: |
