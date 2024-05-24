@@ -17,7 +17,7 @@ drive_service = build('drive', 'v3', credentials=credentials)
 
 BUCKET_NAME = "tlmrisserver"
 EXPORT_FILE = "exported-to-sheets-sheets.txt"
-POST_EXPORT_BUCKET = "/post-exported-data/"
+POST_EXPORT_BUCKET = "post-exported-data/"
 
 def run_aws_cli_command(command):
     try:
