@@ -1,9 +1,9 @@
 import os
 import csv
+import subprocess
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from flask import Flask, request, jsonify
-import boto3
 
 app = Flask(__name__)
 
@@ -19,22 +19,28 @@ BUCKET_NAME = "tlmrisserver"
 EXPORT_FILE = "exported-to-sheets-sheets.txt"
 POST_EXPORT_BUCKET = "tlmrisserver/post-exported-data/"
 
-# Initialize AWS S3 client
-s3 = boto3.client('s3')
+def run_aws_cli_command(command):
+    try:
+        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        return result.stdout.decode('utf-8').strip()
+    except subprocess.CalledProcessError as e:
+        print(f"Error running command: {e}")
+        return None
 
 def download_file_from_s3(bucket, key, local_path):
-    s3.download_file(bucket, key, local_path)
+    command = f"aws s3 cp s3://{bucket}/{key} {local_path}"
+    return run_aws_cli_command(command)
 
 def upload_file_to_s3(bucket, key, local_path):
-    s3.upload_file(local_path, bucket, key)
+    command = f"aws s3 cp {local_path} s3://{bucket}/{key}"
+    return run_aws_cli_command(command)
 
 def list_files_in_s3_bucket(bucket, prefix=""):
-    try:
-        response = s3.list_objects_v2(Bucket=bucket, Prefix=prefix)
-        print(f"S3 Response: {response}")
-        return [item['Key'] for item in response.get('Contents', [])]
-    except Exception as e:
-        print(f"Error listing files in S3 bucket: {e}")
+    command = f"aws s3 ls s3://{bucket}/{prefix} --recursive"
+    output = run_aws_cli_command(command)
+    if output:
+        return [line.split()[-1] for line in output.split('\n') if line]
+    else:
         return []
 
 def create_google_sheet_from_files(file_paths):
