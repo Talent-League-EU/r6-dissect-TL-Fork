@@ -20,13 +20,17 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H ec2-35-177-150-58.eu-west-2.compute.amazonaws.com >> ~/.ssh/known_hosts
 
-    - name: Create service account JSON locally
+    - name: Base64 encode the service account JSON
       run: |
-        printf '%s' "${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}" > service-account-file.json
+        echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}" | base64 > service-account-file.json.base64
 
-    - name: Transfer service account JSON to EC2
+    - name: Transfer the base64 encoded JSON to EC2
       run: |
-        scp service-account-file.json ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com:/home/ec2-user/service-account-file.json
+        scp service-account-file.json.base64 ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com:/home/ec2-user/service-account-file.json.base64
+
+    - name: Decode the base64 JSON on EC2
+      run: |
+        ssh ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com "base64 -d /home/ec2-user/service-account-file.json.base64 > /home/ec2-user/service-account-file.json"
 
     - name: Deploy to EC2
       run: |
