@@ -1,11 +1,11 @@
-# from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify
 # import subprocess
 # import os
 # import boto3
 # from googleapiclient.discovery import build
 # from google.oauth2.service_account import Credentials
 
-# app = Flask(__name__)
+app = Flask(__name__)
 # app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 # BUCKET_NAME = "tlmrisserver"
@@ -59,8 +59,9 @@
 
 #     return f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}"
 
-# @app.route('/api/runner', methods=['POST'])
-# def runner():
+@app.route('/api/runner', methods=['POST'])
+def runner():
+    print('Hello')
 #     # Step 1: Download the export file from S3
 #     download_file_from_s3(BUCKET_NAME, EXPORT_FILE, EXPORT_FILE)
 
@@ -95,7 +96,7 @@
 
 #     return jsonify({'status': 'success', 'sheet_link': sheet_link})
 
-# if __name__ == '__main__':
-#     app.run(port=5003)
+if __name__ == '__main__':
+    app.run(port=5003)
 
-print("Hello World")
+
