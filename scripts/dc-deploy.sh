@@ -13,3 +13,9 @@ else
     sudo docker-compose build
     sudo docker-compose up -d
 fi
+
+
+cd /etc/TLMRIS/scripts
+chmod +x autorun.sh
+
+

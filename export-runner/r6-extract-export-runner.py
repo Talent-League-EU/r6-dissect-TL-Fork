@@ -4,7 +4,7 @@ import os
 import json
 import csv
 import logging
-from openpyxl import Workbook
+from collections import Counter
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
