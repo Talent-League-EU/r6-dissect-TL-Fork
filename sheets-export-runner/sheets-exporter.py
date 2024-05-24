@@ -34,13 +34,14 @@ def download_file_from_s3(bucket, key, local_path):
 
 def upload_file_to_s3(bucket, key, local_path):
     command = f"aws s3 cp {local_path} s3://{bucket}/{key}"
+    print(f"Uploading file to S3: {command}")
     return run_aws_cli_command(command)
 
 def list_files_in_s3_bucket(bucket, prefix=""):
     command = f"aws s3 ls s3://{bucket}/{prefix} --recursive"
     output = run_aws_cli_command(command)
     if output:
-        return [line.split()[-1] for line in output.split('\n') if line]
+        return [line.split()[-1] for line in output.split('\n') if line and not line.endswith('/')]
     else:
         return []
 
@@ -102,7 +103,6 @@ def runner():
     try:
         with open(EXPORT_FILE_NEW, 'r') as file:
             exported_files = file.read().splitlines()
-            print(f"Exported Files: {exported_files}")
     except FileNotFoundError:
         print(f"Export file not found: {EXPORT_FILE}")
         exported_files = []
@@ -119,10 +119,10 @@ def runner():
 
     local_file_paths = []
     for file in new_files:
-        local_path = os.path.basename(file)
-        local_path = f"/app/{local_path}"
-        download_file_from_s3(BUCKET_NAME, file, local_path)
-        local_file_paths.append(local_path)
+        local_path = os.path.join("/app", os.path.basename(file))
+        if not file.endswith('/'):
+            download_file_from_s3(BUCKET_NAME, file, local_path)
+            local_file_paths.append(local_path)
 
     # Step 5: Export the new files to a Google Sheet
     if local_file_paths:
