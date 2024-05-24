@@ -45,7 +45,7 @@ def list_files_in_s3_bucket(bucket, prefix=""):
     else:
         return []
 
-def create_google_sheet_from_files(file_paths):
+def create_google_sheet():
     spreadsheet = {
         'properties': {
             'title': 'Exported Data'
@@ -55,42 +55,42 @@ def create_google_sheet_from_files(file_paths):
                                                        fields='spreadsheetId').execute()
     spreadsheet_id = spreadsheet.get('spreadsheetId')
 
-    for file_path in file_paths:
-        sheet_name = os.path.splitext(os.path.basename(file_path))[0]
-        with open(file_path, 'r') as file:
-            reader = csv.reader(file)
-            values = [row for row in reader]
-            body = {
-                'values': values
-            }
-            # Add a new sheet with the name of the file (without extension)
-            sheets_service.spreadsheets().batchUpdate(spreadsheetId=spreadsheet_id, body={
-                "requests": [
-                    {
-                        "addSheet": {
-                            "properties": {
-                                "title": sheet_name
-                            }
-                        }
-                    }
-                ]
-            }).execute()
-
-            # Write values to the newly created sheet
-            sheets_service.spreadsheets().values().append(
-                spreadsheetId=spreadsheet_id,
-                range=f'{sheet_name}!A1',
-                valueInputOption='RAW',
-                body=body
-            ).execute()
-
-    # Make the spreadsheet public
+    # Make the spreadsheet public with edit permissions
     drive_service.permissions().create(
         fileId=spreadsheet_id,
-        body={'type': 'anyone', 'role': 'reader'}
+        body={'type': 'anyone', 'role': 'writer'}
     ).execute()
 
-    return f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}"
+    return spreadsheet_id
+
+def add_sheet_to_google_sheet(spreadsheet_id, file_path):
+    sheet_name = os.path.splitext(os.path.basename(file_path))[0]
+    with open(file_path, 'r') as file:
+        reader = csv.reader(file)
+        values = [row for row in reader]
+        body = {
+            'values': values
+        }
+        # Add a new sheet with the name of the file (without extension)
+        sheets_service.spreadsheets().batchUpdate(spreadsheetId=spreadsheet_id, body={
+            "requests": [
+                {
+                    "addSheet": {
+                        "properties": {
+                            "title": sheet_name
+                        }
+                    }
+                }
+            ]
+        }).execute()
+
+        # Write values to the newly created sheet
+        sheets_service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range=f'{sheet_name}!A1',
+            valueInputOption='RAW',
+            body=body
+        ).execute()
 
 @app.route('/api/runner', methods=['POST'])
 def runner():
@@ -124,14 +124,25 @@ def runner():
             download_file_from_s3(BUCKET_NAME, file, local_path)
             local_file_paths.append(local_path)
 
-    # Step 5: Export the new files to a Google Sheet
+    # Step 5: Create or get the Google Sheet and add the new files to it
     if local_file_paths:
-        sheet_link = create_google_sheet_from_files(local_file_paths)
+        try:
+            with open('/app/sheet_id.txt', 'r') as file:
+                spreadsheet_id = file.read().strip()
+        except FileNotFoundError:
+            spreadsheet_id = create_google_sheet()
+            with open('/app/sheet_id.txt', 'w') as file:
+                file.write(spreadsheet_id)
+
+        for file_path in local_file_paths:
+            add_sheet_to_google_sheet(spreadsheet_id, file_path)
+
+        sheet_link = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}"
 
         # Step 6: Update the export file and upload it back to S3
         with open(EXPORT_FILE_NEW, 'a') as file:
             for file_name in new_files:
-                file.write(f"{file_name},{sheet_link}\n")
+                file.write(f"{file_name}\n")
 
         upload_file_to_s3(BUCKET_NAME, EXPORT_FILE, EXPORT_FILE)
     else:
