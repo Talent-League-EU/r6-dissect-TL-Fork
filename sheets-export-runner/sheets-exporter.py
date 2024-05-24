@@ -29,8 +29,13 @@ def upload_file_to_s3(bucket, key, local_path):
     s3.upload_file(local_path, bucket, key)
 
 def list_files_in_s3_bucket(bucket, prefix=""):
-    response = s3.list_objects_v2(Bucket=bucket, Prefix=prefix)
-    return [item['Key'] for item in response.get('Contents', [])]
+    try:
+        response = s3.list_objects_v2(Bucket=bucket, Prefix=prefix)
+        print(f"S3 Response: {response}")
+        return [item['Key'] for item in response.get('Contents', [])]
+    except Exception as e:
+        print(f"Error listing files in S3 bucket: {e}")
+        return []
 
 def create_google_sheet_from_files(file_paths):
     spreadsheet = {
