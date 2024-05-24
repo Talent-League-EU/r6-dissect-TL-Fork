@@ -40,4 +40,5 @@ services:
     user: root
     environment:
       - FLASK_ENV=development
-      - GOOGLE_SERVICE_ACCOUNT_JSON=${GOOGLE_SERVICE_ACCOUNT_JSON}
+    volumes:
+      - /etc/TLMRIS/sheets-export-runner/service-account-file.json:/app/service-account-file.json:ro

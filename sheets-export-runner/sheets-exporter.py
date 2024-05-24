@@ -7,9 +7,9 @@ import boto3
 
 app = Flask(__name__)
 
-# Read the JSON content from an environment variable
-service_account_info = json.loads(os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON'))
-credentials = Credentials.from_service_account_info(service_account_info)
+# Read the JSON content from a file
+SERVICE_ACCOUNT_FILE = '/app/service-account-file.json'
+credentials = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
 
 # Initialize the Sheets API
 service = build('sheets', 'v4', credentials=credentials)
