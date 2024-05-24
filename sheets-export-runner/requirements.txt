@@ -1,5 +1,5 @@
 Flask
-boto3
+awscli
 google-api-python-client
 google-auth
 google-auth-httplib2
