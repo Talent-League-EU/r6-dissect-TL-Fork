@@ -20,9 +20,9 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H ec2-35-177-150-58.eu-west-2.compute.amazonaws.com >> ~/.ssh/known_hosts
 
-    - name: Set environment variable and run Docker Compose
+    - name: Create .env file on EC2
       run: |
-        ssh ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com "export GOOGLE_SERVICE_ACCOUNT_JSON='${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}'"
+        echo "GOOGLE_SERVICE_ACCOUNT_JSON='${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}'" | ssh ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com 'cat > /home/ec2-user/r6-dissect-TL-Fork/.env'
 
     - name: Deploy to EC2
       run: |
