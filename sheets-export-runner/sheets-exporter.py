@@ -100,7 +100,9 @@ def runner():
     try:
         with open(EXPORT_FILE, 'r') as file:
             exported_files = file.read().splitlines()
+            print(f"Exported Files: {exported_files}")
     except FileNotFoundError:
+        print(f"Export file not found: {EXPORT_FILE}")
         exported_files = []
 
     print(f"Exported Files: {exported_files}")
