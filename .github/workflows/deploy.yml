@@ -30,6 +30,6 @@ jobs:
         rsync -avz --exclude '.git' --exclude 'node_modules' ./ ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com:/home/ec2-user/r6-dissect-TL-Fork
         ssh ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com "sudo mkdir -p /etc/TLMRIS && cd /etc/TLMRIS && sudo find . -maxdepth 1 ! -name 'data' ! -name '.' -exec rm -rf {} +"
         ssh ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com "sudo mv /home/ec2-user/r6-dissect-TL-Fork/* /etc/TLMRIS"
-        ssh ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com "sudo GOOGLE_SERVICE_ACCOUNT_JSON=$(cat /home/ec2-user/service-account-file.json) 
+        ssh ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com "sudo GOOGLE_SERVICE_ACCOUNT_JSON=$(cat /home/ec2-user/service-account-file.json)"
         ssh ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com "cd /etc/TLMRIS/scripts && pwd && sudo bash build.sh"
         
