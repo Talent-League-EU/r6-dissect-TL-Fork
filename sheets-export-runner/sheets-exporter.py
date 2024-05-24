@@ -1,3 +1,4 @@
+
 import os
 import csv
 import subprocess
@@ -63,6 +64,19 @@ def create_google_sheet():
 
     return spreadsheet_id
 
+def get_or_create_google_sheet():
+    sheet_id_file = '/app/sheet_id.txt'
+    if os.path.exists(sheet_id_file):
+        with open(sheet_id_file, 'r') as file:
+            spreadsheet_id = file.read().strip()
+            print(f"Using existing Google Sheet with ID: {spreadsheet_id}")
+    else:
+        spreadsheet_id = create_google_sheet()
+        with open(sheet_id_file, 'w') as file:
+            file.write(spreadsheet_id)
+            print(f"Created new Google Sheet with ID: {spreadsheet_id}")
+    return spreadsheet_id
+
 def add_sheet_to_google_sheet(spreadsheet_id, file_path):
     sheet_name = os.path.splitext(os.path.basename(file_path))[0]
     with open(file_path, 'r') as file:
@@ -124,16 +138,10 @@ def runner():
             download_file_from_s3(BUCKET_NAME, file, local_path)
             local_file_paths.append(local_path)
 
-    # Step 5: Create or get the Google Sheet and add the new files to it
-    if local_file_paths:
-        try:
-            with open('/app/sheet_id.txt', 'r') as file:
-                spreadsheet_id = file.read().strip()
-        except FileNotFoundError:
-            spreadsheet_id = create_google_sheet()
-            with open('/app/sheet_id.txt', 'w') as file:
-                file.write(spreadsheet_id)
+    # Step 5: Get or create the Google Sheet and add the new files to it
+    spreadsheet_id = get_or_create_google_sheet()
 
+    if local_file_paths:
         for file_path in local_file_paths:
             add_sheet_to_google_sheet(spreadsheet_id, file_path)
 
