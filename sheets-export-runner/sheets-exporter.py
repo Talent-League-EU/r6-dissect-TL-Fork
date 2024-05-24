@@ -16,7 +16,7 @@ POST_EXPORT_BUCKET = "tlmrisserver/post-exported-data/"
 s3 = boto3.client('s3')
 
 # Path to your service account JSON file
-SERVICE_ACCOUNT_FILE = 'app/tl-controler-2bd5dd1c5cd9.json'
+SERVICE_ACCOUNT_FILE = 'app/service-account-file.json'
 
 # Initialize Google Sheets API client
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
