@@ -20,6 +20,10 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H ec2-35-177-150-58.eu-west-2.compute.amazonaws.com >> ~/.ssh/known_hosts
 
+    - name: Create service account JSON on EC2
+      run: |
+        ssh ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com "echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > /home/ec2-user/service-account-file.json"
+
     - name: Deploy to EC2
       run: |
         ssh ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com "mkdir -p /home/ec2-user/r6-dissect-TL-Fork"
