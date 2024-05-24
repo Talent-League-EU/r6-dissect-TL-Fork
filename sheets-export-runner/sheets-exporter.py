@@ -91,11 +91,16 @@ def runner():
     except FileNotFoundError:
         exported_files = []
 
+    print(f"Exported Files: {exported_files}")
+
     # Step 3: List the contents of the post-exported-data bucket
     post_export_files = list_files_in_s3_bucket(BUCKET_NAME, POST_EXPORT_BUCKET)
+    print(f"Post Export Files: {post_export_files}")
 
     # Step 4: Download files not in the export file
     new_files = [file for file in post_export_files if file not in exported_files]
+    print(f"New Files: {new_files}")
+
     local_file_paths = []
     for file in new_files:
         local_path = os.path.basename(file)
