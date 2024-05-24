@@ -22,7 +22,8 @@ jobs:
 
     - name: Create service account JSON on EC2
       run: |
-        echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}" | ssh ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com "jq . > /home/ec2-user/service-account-file.json"
+        echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}" | ssh ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com "cat > /home/ec2-user/service-account-file.json"
+        ssh ec2-user@ec2-35-177-150-58.eu-west-2.compute.amazonaws.com "echo $(jq /home/ec2-user/service-account-file.json > /home/ec2-user/service-account-file.json)"
 
     - name: Deploy to EC2
       run: |
