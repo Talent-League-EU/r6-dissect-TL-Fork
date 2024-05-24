@@ -2,6 +2,8 @@ import os
 import json
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaFileUpload
 from flask import Flask, request, jsonify
 import boto3
 
@@ -11,8 +13,9 @@ app = Flask(__name__)
 SERVICE_ACCOUNT_FILE = '/app/service-account-file.json'
 credentials = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
 
-# Initialize the Sheets API
-service = build('sheets', 'v4', credentials=credentials)
+# Initialize the Sheets and Drive API
+sheets_service = build('sheets', 'v4', credentials=credentials)
+drive_service = build('drive', 'v3', credentials=credentials)
 
 BUCKET_NAME = "tlmrisserver"
 EXPORT_FILE = "exported-to-sheets-sheets.txt"
@@ -37,8 +40,8 @@ def create_google_sheet_from_files(file_paths):
             'title': 'Exported Data'
         }
     }
-    spreadsheet = service.spreadsheets().create(body=spreadsheet,
-                                                fields='spreadsheetId').execute()
+    spreadsheet = sheets_service.spreadsheets().create(body=spreadsheet,
+                                                       fields='spreadsheetId').execute()
     spreadsheet_id = spreadsheet.get('spreadsheetId')
 
     for file_path in file_paths:
@@ -47,12 +50,18 @@ def create_google_sheet_from_files(file_paths):
             body = {
                 'values': values
             }
-            service.spreadsheets().values().append(
+            sheets_service.spreadsheets().values().append(
                 spreadsheetId=spreadsheet_id,
                 range='Sheet1',
                 valueInputOption='RAW',
                 body=body
             ).execute()
+
+    # Make the spreadsheet public
+    drive_service.permissions().create(
+        fileId=spreadsheet_id,
+        body={'type': 'anyone', 'role': 'reader'}
+    ).execute()
 
     return f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}"
 
