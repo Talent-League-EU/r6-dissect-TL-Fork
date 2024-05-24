@@ -36,7 +36,7 @@ services:
       context: .
       dockerfile: sheets-export-runner/Dockerfile-sheets-exporter
     ports:
-      - "5002:5002"  # Expose on port 5002 externally, but the app runs on 5000 internally
+      - "5003:5003"  # Expose on port 5002 externally, but the app runs on 5000 internally
     user: root
     environment:
       - FLASK_ENV=development

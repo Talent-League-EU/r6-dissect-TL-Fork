@@ -21,4 +21,4 @@ COPY sheets-export-runner/. /app
 EXPOSE 5003
 
 # Command to run the application
-CMD ["python", "app.py"]
+CMD ["python", "sheets-exporter.py"]
