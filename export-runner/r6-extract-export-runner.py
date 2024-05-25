@@ -133,9 +133,10 @@ def create_csv_from_json(json_file_path):
                 if username in player_stats:
                     player_stats[username]["Defuses"] += 1
 
-    # Temporary variable to store number of rounds not being targeted
+    # Temporary variables
     not_targeted_counts = {username: 0 for username in player_stats}
-    killed_or_refragged_counts = {username: 0 for username in player_stats}
+    killed_counts = {username: 0 for username in player_stats}
+    refrag_counts = {username: 0 for username in player_stats}
 
     for round_data in data['rounds']:
         kill_targets = set()
@@ -144,34 +145,26 @@ def create_csv_from_json(json_file_path):
                 kill_targets.add(feedback['target'])
                 killer = feedback['username']
                 if killer in player_stats:
-                    killed_or_refragged_counts[killer] += 1
-            elif feedback['type']['name'] == "Kill" and "refrag" in feedback:
+                    killed_counts[killer] += 1
+            if "refrag" in feedback and feedback['type']['name'] == "Kill":
                 refragger = feedback['username']
                 if refragger in player_stats:
-                    killed_or_refragged_counts[refragger] += 1
+                    refrag_counts[refragger] += 1
         for username in player_stats:
             if username not in kill_targets:
                 not_targeted_counts[username] += 1
 
-    # Determine the most common operator for each player for attack and defense
-    for username, counts in operator_counts.items():
-        if username in player_stats:
-            # Attack Main
-            most_common_attack = counts["attack"].most_common(1)
-            if most_common_attack:
-                player_stats[username]["Attack Main"] = most_common_attack[0][0]
-            # Defense Main
-            most_common_defense = counts["defense"].most_common(1)
-            if most_common_defense:
-                player_stats[username]["Defense Main"] = most_common_defense[0][0]
-            print(f"Username: {username}, Attack Main: {player_stats[username]['Attack Main']}, Defense Main: {player_stats[username]['Defense Main']}")
+    # Logging the temporary variables
+    for username in player_stats:
+        logging.info(f"{username}: Kills in rounds = {killed_counts[username]}, Refrags in rounds = {refrag_counts[username]}, Rounds survived = {not_targeted_counts[username]}")
 
     # Calculate KOST for each player
     first_player = next(iter(player_stats))
     total_rounds = player_stats[first_player]["Rounds"]
     for username, stats in player_stats.items():
         total_contributions = (
-            (stats["Kills"] or stats["Refrags"])+
+            killed_counts[username] +
+            refrag_counts[username] +
             stats["Plants"] +
             stats["Defuses"] +
             not_targeted_counts[username]
