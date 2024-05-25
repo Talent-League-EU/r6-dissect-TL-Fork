@@ -1,10 +1,10 @@
-from flask import Flask
-import subprocess
-import os
 import json
 import csv
 import logging
+import os
+import subprocess
 from collections import Counter
+from flask import Flask
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -135,12 +135,20 @@ def create_csv_from_json(json_file_path):
 
     # Temporary variable to store number of rounds not being targeted
     not_targeted_counts = {username: 0 for username in player_stats}
+    killed_or_refragged_counts = {username: 0 for username in player_stats}
 
     for round_data in data['rounds']:
         kill_targets = set()
         for feedback in round_data['matchFeedback']:
             if feedback['type']['name'] == "Kill":
                 kill_targets.add(feedback['target'])
+                killer = feedback['username']
+                if killer in player_stats:
+                    killed_or_refragged_counts[killer] += 1
+            elif feedback['type']['name'] == "Kill" and "refrag" in feedback:
+                refragger = feedback['username']
+                if refragger in player_stats:
+                    killed_or_refragged_counts[refragger] += 1
         for username in player_stats:
             if username not in kill_targets:
                 not_targeted_counts[username] += 1
@@ -163,11 +171,10 @@ def create_csv_from_json(json_file_path):
     total_rounds = player_stats[first_player]["Rounds"]
     for username, stats in player_stats.items():
         total_contributions = (
-            stats["Kills"] +
+            (stats["Kills"] or stats["Refrags"])+
             stats["Plants"] +
             stats["Defuses"] +
-            not_targeted_counts[username] +
-            stats["Refrags"]
+            not_targeted_counts[username]
         )
         stats["KOST"] = total_contributions / total_rounds
 
@@ -201,10 +208,6 @@ def create_csv_from_json(json_file_path):
     print(f"Deleted local file {json_file_path}")
     os.remove(csv_file_name)
     print(f"Deleted local file {csv_file_name}")
-
-
-
-
 
 def list_s3_files(bucket):
     cmd = f"aws s3 ls {bucket} --recursive"
