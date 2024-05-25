@@ -71,27 +71,36 @@ app.post('/upload', upload.array('zipfiles'), async (req, res) => {
 
       const fileExistsInBucket = await checkFileExists(bucketName, `${originalName}-${teamName}/`);
       if (fileExistsInBucket) {
-        throw new Error('File already exists in the bucket. Please contact an admin on Discord.');
+        return res.status(400).send('File already exists in the bucket. Please contact an admin on Discord.');
       }
 
       const unzipAndUpload = new Promise((resolve, reject) => {
         fs.createReadStream(zipPath)
           .pipe(unzipper.Extract({ path: unzipPath }))
+          .on('error', (err) => reject(`Error unzipping file: ${err.message}`))
           .on('close', async () => {
-            const files = fs.readdirSync(unzipPath);
-            const invalidFiles = files.filter(file => !file.endsWith('.rec'));
+            try {
+              const files = fs.readdirSync(unzipPath);
+              const invalidFiles = files.filter(file => !file.endsWith('.rec'));
 
-            if (invalidFiles.length > 0) {
-              return reject('Invalid match replay folder');
+              if (invalidFiles.length > 0) {
+                return reject('Incorrect replay structure. The Zip file should only have .rec files in it');
+              }
+
+              const newFolderName = `${originalName}-${teamName}`;
+              const newFolderPath = `uploads/${newFolderName}`;
+              if (fs.existsSync(newFolderPath)) {
+                return reject(`Error: Folder already exists: ${newFolderPath}`);
+              }
+
+              fs.renameSync(unzipPath, newFolderPath);
+
+              const s3Path = `${bucketName}/${newFolderName}`;
+              await uploadToS3(newFolderPath, s3Path);
+              resolve('Upload successful');
+            } catch (err) {
+              reject(`Error processing upload: ${err.message}`);
             }
-
-            const newFolderName = `${originalName}-${teamName}`;
-            const newFolderPath = `uploads/${newFolderName}`;
-            fs.renameSync(unzipPath, newFolderPath);
-
-            const s3Path = `${bucketName}/${newFolderName}`;
-            await uploadToS3(newFolderPath, s3Path);
-            resolve('Upload successful');
           });
       });
 
@@ -104,7 +113,6 @@ app.post('/upload', upload.array('zipfiles'), async (req, res) => {
     });
 
     if (allUploadsSuccessful) {
-      // Check if there are any pending uploads
       const lockFileExists = await checkFileExists(bucketName, 'upload.lock');
       if (!lockFileExists) {
         await s3.putObject({
@@ -113,12 +121,15 @@ app.post('/upload', upload.array('zipfiles'), async (req, res) => {
           Body: 'lock',
         }).promise();
 
-        // Check again if there are pending uploads before uploading the complete file
         setTimeout(async () => {
-          const stillLockFileExists = await checkFileExists(bucketName, 'upload.lock');
-          if (stillLockFileExists) {
-            await uploadCompleteFile();
-            await s3.deleteObject({ Bucket: bucketName, Key: 'upload.lock' }).promise();
+          try {
+            const stillLockFileExists = await checkFileExists(bucketName, 'upload.lock');
+            if (stillLockFileExists) {
+              await uploadCompleteFile();
+              await s3.deleteObject({ Bucket: bucketName, Key: 'upload.lock' }).promise();
+            }
+          } catch (err) {
+            console.error('Error during lock file handling:', err.message);
           }
         }, 5000);
       }
