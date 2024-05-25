@@ -135,36 +135,43 @@ def create_csv_from_json(json_file_path):
 
     # Temporary variables
     not_targeted_counts = {username: 0 for username in player_stats}
-    killed_counts = {username: 0 for username in player_stats}
-    refrag_counts = {username: 0 for username in player_stats}
+    killed_in_rounds = {username: 0 for username in player_stats}
+    refrag_in_rounds = {username: 0 for username in player_stats}
 
     for round_data in data['rounds']:
         kill_targets = set()
+        round_kills = set()
+        round_refrags = set()
         for feedback in round_data['matchFeedback']:
             if feedback['type']['name'] == "Kill":
-                kill_targets.add(feedback['target'])
                 killer = feedback['username']
-                if killer in player_stats:
-                    killed_counts[killer] += 1
-            if "refrag" in feedback and feedback['type']['name'] == "Kill":
-                refragger = feedback['username']
-                if refragger in player_stats:
-                    refrag_counts[refragger] += 1
+                victim = feedback['target']
+                kill_targets.add(victim)
+                round_kills.add(killer)
+                
+                if "refrag" in feedback:  # Assuming 'refrag' is in the feedback data
+                    refragger = feedback['username']
+                    round_refrags.add(refragger)
+
         for username in player_stats:
             if username not in kill_targets:
                 not_targeted_counts[username] += 1
+            if username in round_kills:
+                killed_in_rounds[username] += 1
+            if username in round_refrags:
+                refrag_in_rounds[username] += 1
 
     # Logging the temporary variables
     for username in player_stats:
-        logging.info(f"{username}: Kills in rounds = {killed_counts[username]}, Refrags in rounds = {refrag_counts[username]}, Rounds survived = {not_targeted_counts[username]}")
+        logging.info(f"{username}: Kills in rounds = {killed_in_rounds[username]}, Refrags in rounds = {refrag_in_rounds[username]}, Rounds survived = {not_targeted_counts[username]}")
 
     # Calculate KOST for each player
     first_player = next(iter(player_stats))
     total_rounds = player_stats[first_player]["Rounds"]
     for username, stats in player_stats.items():
         total_contributions = (
-            killed_counts[username] +
-            refrag_counts[username] +
+            killed_in_rounds[username] +
+            refrag_in_rounds[username] +
             stats["Plants"] +
             stats["Defuses"] +
             not_targeted_counts[username]
