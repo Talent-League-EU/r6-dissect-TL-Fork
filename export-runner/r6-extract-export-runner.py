@@ -136,12 +136,11 @@ def create_csv_from_json(json_file_path):
     # Temporary variables
     not_targeted_counts = {username: 0 for username in player_stats}
     killed_in_rounds = {username: 0 for username in player_stats}
-    refrag_in_rounds = {username: 0 for username in player_stats}
+    refrag_in_rounds_set = {username: set() for username in player_stats}
 
-    for round_data in data['rounds']:
+    for round_number, round_data in enumerate(data['rounds']):
         kill_targets = set()
         round_kills = set()
-        round_refrags = set()
         for feedback in round_data['matchFeedback']:
             if feedback['type']['name'] == "Kill":
                 killer = feedback['username']
@@ -149,17 +148,21 @@ def create_csv_from_json(json_file_path):
                 kill_targets.add(victim)
                 round_kills.add(killer)
                 
-                if "refrag" in feedback:  # Assuming 'refrag' is in the feedback data
-                    refragger = feedback['username']
-                    round_refrags.add(refragger)
+                # Assuming 'refrag' is determined by proximity in time to another kill
+                if previous_kill and feedback['timeInSeconds'] - previous_kill[1] <= 3:
+                    refragger = previous_kill[0]
+                    refrag_in_rounds_set[refragger].add(round_number)
+
+                previous_kill = (killer, feedback['timeInSeconds'])
 
         for username in player_stats:
             if username not in kill_targets:
                 not_targeted_counts[username] += 1
             if username in round_kills:
                 killed_in_rounds[username] += 1
-            if username in round_refrags:
-                refrag_in_rounds[username] += 1
+
+    # Convert sets to counts for logging
+    refrag_in_rounds = {username: len(rounds) for username, rounds in refrag_in_rounds_set.items()}
 
     # Logging the temporary variables
     for username in player_stats:
