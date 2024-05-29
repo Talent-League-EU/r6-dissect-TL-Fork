@@ -25,7 +25,7 @@ def download_s3_file(bucket, file, local_path):
     else:
         print(f"Successfully downloaded {file} to {local_file_path}")
         logging.info(f"Successfully downloaded {file} to {local_file_path}")
-        create_csv_from_json(local_file_path)
+    return local_file_path
 
 def upload_file_to_s3(local_file_path, bucket, s3_file_path):
     """Uploads a file to an S3 bucket using AWS CLI."""
@@ -35,6 +35,11 @@ def upload_file_to_s3(local_file_path, bucket, s3_file_path):
         print(f"Successfully uploaded {local_file_path} to s3://{bucket}/{s3_file_path}")
     except subprocess.CalledProcessError as e:
         print(f"Failed to upload file to S3: {e.stderr.decode()}")
+
+def process_exported_to_sheets(file_path):
+    with open(file_path, 'r') as file:
+        existing_csvs = file.read().splitlines()
+    return set(existing_csvs)
 
 def create_csv_from_json(json_file_path):
     # Read the JSON file
@@ -218,19 +223,49 @@ def create_csv_from_json(json_file_path):
             writer.writerow(row)
     
     logging.info(f"CSV file '{csv_file_name}' created successfully.")
+    return csv_file_name
 
-    # Upload to S3
-    s3_bucket = "tlmrisserver"
-    s3_path = "post-exported-data/"
-    s3_file_path = s3_path + os.path.basename(csv_file_name)
-    upload_file_to_s3(csv_file_name, s3_bucket, s3_file_path)
+@app.route('/api/runner', methods=['POST'])
+def runner():
+    data_directory = "/app/data"
+    os.makedirs(data_directory, exist_ok=True)
+    intermediate_data_bucket = "s3://tlmrisserver/intermediate-data"
+    post_exported_data_bucket = "s3://tlmrisserver/post-exported-data"
+    exported_to_sheets_file = "exported-to-sheets.txt"
+    
+    # Download exported-to-sheets file
+    exported_to_sheets_path = download_s3_file(post_exported_data_bucket, exported_to_sheets_file, data_directory)
+    
+    # Read existing CSV files listed in exported-to-sheets file
+    existing_csvs = process_exported_to_sheets(exported_to_sheets_path)
 
+    # List files in intermediate-data bucket
+    intermediate_files = list_s3_files(intermediate_data_bucket)
+
+    # Process each JSON file that doesn't have a corresponding CSV
+    for file in intermediate_files:
+        if file.endswith('.json'):
+            csv_file_name = os.path.splitext(file)[0] + '.csv'
+            if csv_file_name not in existing_csvs:
+                json_file_path = download_s3_file(intermediate_data_bucket, file, data_directory)
+                created_csv_file = create_csv_from_json(json_file_path)
+                existing_csvs.add(created_csv_file)
+                os.remove(json_file_path)
+                logging.info(f"Deleted local file {json_file_path}")
+
+    # Write the updated list of CSV files to exported-to-sheets file
+    with open(exported_to_sheets_path, 'w') as file:
+        for csv_file in existing_csvs:
+            file.write(csv_file + '\n')
+    
+    # Reupload the exported-to-sheets file
+    upload_file_to_s3(exported_to_sheets_path, post_exported_data_bucket, exported_to_sheets_file)
+    
     # Clean up local files
-    os.remove(json_file_path)
-    logging.info(f"Deleted local file {json_file_path}")
-    os.remove(csv_file_name)
-    logging.info(f"Deleted local file {csv_file_name}")
+    os.remove(exported_to_sheets_path)
+    logging.info(f"Deleted local file {exported_to_sheets_path}")
 
+    return "File download and processing complete!"
 
 def list_s3_files(bucket):
     cmd = f"aws s3 ls {bucket} --recursive"
@@ -240,26 +275,6 @@ def list_s3_files(bucket):
         logging.error(f"Error listing S3 bucket contents: {result.stderr}")
         return []
     return [line.split()[-1] for line in result.stdout.split('\n') if line.strip()]
-
-@app.route('/api/runner', methods=['POST'])
-def runner():
-    data_directory = "/app/data"
-    os.makedirs(data_directory, exist_ok=True)
-    intermediate_data_bucket = "s3://tlmrisserver/intermediate-data"
-    post_exported_data_bucket = "s3://tlmrisserver/post-exported-data"
-
-    intermediate_files = list_s3_files(intermediate_data_bucket)
-    post_exported_files = list_s3_files(post_exported_data_bucket)
-
-    intermediate_files_set = set(intermediate_files)
-    post_exported_files_set = set(post_exported_files)
-
-    unique_files = intermediate_files_set - post_exported_files_set
-
-    for file in unique_files:
-        download_s3_file("s3://tlmrisserver/", file, data_directory)
-
-    return "File download and processing complete!"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5002)
