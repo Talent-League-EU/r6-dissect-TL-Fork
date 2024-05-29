@@ -270,9 +270,6 @@ def runner():
         for csv_file in existing_csvs:
             file.write(csv_file + '\n')
     
-    # Reupload the exported-to-sheets file
-    upload_file_to_s3(exported_to_sheets_path, root_bucket, exported_to_sheets_file)
-    
     # Clean up local files
     os.remove(exported_to_sheets_path)
     logging.info(f"Deleted local file {exported_to_sheets_path}")
