@@ -229,12 +229,13 @@ def create_csv_from_json(json_file_path):
 def runner():
     data_directory = "/app/data"
     os.makedirs(data_directory, exist_ok=True)
-    intermediate_data_bucket = "s3://tlmrisserver/intermediate-data"
-    post_exported_data_bucket = "s3://tlmrisserver/post-exported-data"
+    intermediate_data_bucket = "s3://tlmrisserver/"
+    post_exported_data_bucket = "s3://tlmrisserver/"
+    root_bucket = "s3://tlmrisserver"
     exported_to_sheets_file = "exported-to-sheets.txt"
     
-    # Download exported-to-sheets file
-    exported_to_sheets_path = download_s3_file(post_exported_data_bucket, exported_to_sheets_file, data_directory)
+    # Download exported-to-sheets file from the root of the S3 bucket
+    exported_to_sheets_path = download_s3_file(root_bucket, exported_to_sheets_file, data_directory)
     
     # Read existing CSV files listed in exported-to-sheets file
     existing_csvs = process_exported_to_sheets(exported_to_sheets_path)
@@ -249,9 +250,20 @@ def runner():
             if csv_file_name not in existing_csvs:
                 json_file_path = download_s3_file(intermediate_data_bucket, file, data_directory)
                 created_csv_file = create_csv_from_json(json_file_path)
-                existing_csvs.add(created_csv_file)
+                
+                # Upload the newly created CSV file to the post-exported-data folder in S3
+                s3_csv_path = f"post-exported-data/{os.path.basename(created_csv_file)}"
+                upload_file_to_s3(created_csv_file, "tlmrisserver", s3_csv_path)
+
+                # Add the S3 URL to the existing CSVs set
+                s3_csv_url = f"s3://tlmrisserver/{s3_csv_path}"
+                existing_csvs.add(s3_csv_url)
+                
+                # Clean up local files
                 os.remove(json_file_path)
+                os.remove(created_csv_file)
                 logging.info(f"Deleted local file {json_file_path}")
+                logging.info(f"Deleted local file {created_csv_file}")
 
     # Write the updated list of CSV files to exported-to-sheets file
     with open(exported_to_sheets_path, 'w') as file:
@@ -259,7 +271,7 @@ def runner():
             file.write(csv_file + '\n')
     
     # Reupload the exported-to-sheets file
-    upload_file_to_s3(exported_to_sheets_path, post_exported_data_bucket, exported_to_sheets_file)
+    upload_file_to_s3(exported_to_sheets_path, root_bucket, exported_to_sheets_file)
     
     # Clean up local files
     os.remove(exported_to_sheets_path)
