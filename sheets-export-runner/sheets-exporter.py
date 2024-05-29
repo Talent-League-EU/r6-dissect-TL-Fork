@@ -124,7 +124,7 @@ def runner():
 
     # Step 5: Add the new files to the existing Google Sheet
     if local_file_paths:
-        insert_index = get_insert_index(SPREADSHEET_ID, "HISTORY", "STOP")
+        insert_index = get_insert_index(SPREADSHEET_ID, "Players-History", "|")
 
         for file_path in local_file_paths:
             add_sheet_to_google_sheet(SPREADSHEET_ID, file_path, insert_index)

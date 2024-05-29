@@ -70,17 +70,41 @@ def create_csv_from_json(json_file_path):
     # Extract players data
     player_stats = {}
     operator_counts = {}
+    rounds_contributions = {}  # Track contributions per round
+    
     for round_data in data['rounds']:
+        round_number = round_data['roundNumber']
+        
+        # Track operator swaps
+        operator_swaps = {}
+
         for player in round_data['players']:
             username = player['username']
             operator_name = player['operator']['name']
             if username not in operator_counts:
                 operator_counts[username] = {"attack": Counter(), "defense": Counter()}
+                rounds_contributions[username] = set()
             if operator_name in attack_operators:
                 operator_counts[username]["attack"][operator_name] += 1
             elif operator_name in defense_operators:
                 operator_counts[username]["defense"][operator_name] += 1
-        
+            
+            logging.info(f"Round {round_number}: {username} is using {operator_name}")
+
+        # Check for operator swaps and update operator name
+        for feedback in round_data['matchFeedback']:
+            if feedback['type']['name'] == "OperatorSwap":
+                operator_swaps[feedback['username']] = feedback['operator']['name']
+
+        # Update operator names based on swaps
+        for player in round_data['players']:
+            username = player['username']
+            if username in operator_swaps:
+                old_operator = player['operator']['name']
+                new_operator = operator_swaps[username]
+                player['operator']['name'] = new_operator
+                logging.info(f"Round {round_number}: {username} swapped from {old_operator} to {new_operator}")
+
         for stat in round_data['stats']:
             username = stat['username']
             if username not in player_stats:
@@ -117,9 +141,10 @@ def create_csv_from_json(json_file_path):
                 # Track refrags (trades)
                 if previous_kill:
                     prev_killer, prev_time = previous_kill
-                    if victim == prev_killer and (prev_time - time_in_seconds) <= 3:
+                    if victim == prev_killer and (time_in_seconds - prev_time) <= 3:
                         if killer in player_stats:
                             player_stats[killer]["Refrags"] += 1
+                        rounds_contributions[killer].add(round_number)  # Track round contribution for killer
                 
                 previous_kill = (killer, time_in_seconds)
 
@@ -127,17 +152,17 @@ def create_csv_from_json(json_file_path):
                 username = feedback['username']
                 if username in player_stats:
                     player_stats[username]["Plants"] += 1
+                    rounds_contributions[username].add(round_number)  # Track round contribution for planter
 
             elif feedback['type']['name'] == "DefuserDisableComplete":
                 username = feedback['username']
                 if username in player_stats:
                     player_stats[username]["Defuses"] += 1
+                    rounds_contributions[username].add(round_number)  # Track round contribution for defuser
 
     # Temporary variables
     not_targeted_counts = {username: 0 for username in player_stats}
     killed_in_rounds = {username: 0 for username in player_stats}
-    refrag_in_rounds_set = {username: set() for username in player_stats}
-
     for round_number, round_data in enumerate(data['rounds']):
         kill_targets = set()
         round_kills = set()
@@ -147,39 +172,33 @@ def create_csv_from_json(json_file_path):
                 victim = feedback['target']
                 kill_targets.add(victim)
                 round_kills.add(killer)
-                
-                # Assuming 'refrag' is determined by proximity in time to another kill
-                if previous_kill and feedback['timeInSeconds'] - previous_kill[1] <= 3:
-                    refragger = previous_kill[0]
-                    refrag_in_rounds_set[refragger].add(round_number)
 
                 previous_kill = (killer, feedback['timeInSeconds'])
 
         for username in player_stats:
             if username not in kill_targets:
                 not_targeted_counts[username] += 1
+                rounds_contributions[username].add(round_number)  # Track round contribution for survival
             if username in round_kills:
                 killed_in_rounds[username] += 1
-
-    # Convert sets to counts for logging
-    refrag_in_rounds = {username: len(rounds) for username, rounds in refrag_in_rounds_set.items()}
-
-    # Logging the temporary variables
-    for username in player_stats:
-        logging.info(f"{username}: Kills in rounds = {killed_in_rounds[username]}, Refrags in rounds = {refrag_in_rounds[username]}, Rounds survived = {not_targeted_counts[username]}")
 
     # Calculate KOST for each player
     first_player = next(iter(player_stats))
     total_rounds = player_stats[first_player]["Rounds"]
     for username, stats in player_stats.items():
-        total_contributions = (
-            killed_in_rounds[username] +
-            refrag_in_rounds[username] +
-            stats["Plants"] +
-            stats["Defuses"] +
-            not_targeted_counts[username]
-        )
+        total_contributions = len(rounds_contributions[username])  # Count unique rounds with contributions
         stats["KOST"] = total_contributions / total_rounds
+
+    # Determine the most common attacking and defending operators for each player
+    for username, counts in operator_counts.items():
+        if counts["attack"]:
+            player_stats[username]["Attack Main"] = counts["attack"].most_common(1)[0][0]
+        if counts["defense"]:
+            player_stats[username]["Defense Main"] = counts["defense"].most_common(1)[0][0]
+
+    # Log the most common attack and defense operators for each player
+    for username, stats in player_stats.items():
+        logging.info(f"{username} - Most common Attack Operator: {stats['Attack Main']}, Most common Defense Operator: {stats['Defense Main']}")
 
     # Extract HS% from the very last stats section
     last_stats = data['stats']
@@ -198,7 +217,7 @@ def create_csv_from_json(json_file_path):
             row.update(stats)
             writer.writerow(row)
     
-    print(f"CSV file '{csv_file_name}' created successfully.")
+    logging.info(f"CSV file '{csv_file_name}' created successfully.")
 
     # Upload to S3
     s3_bucket = "tlmrisserver"
@@ -208,9 +227,10 @@ def create_csv_from_json(json_file_path):
 
     # Clean up local files
     os.remove(json_file_path)
-    print(f"Deleted local file {json_file_path}")
+    logging.info(f"Deleted local file {json_file_path}")
     os.remove(csv_file_name)
-    print(f"Deleted local file {csv_file_name}")
+    logging.info(f"Deleted local file {csv_file_name}")
+
 
 def list_s3_files(bucket):
     cmd = f"aws s3 ls {bucket} --recursive"
