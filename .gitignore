@@ -36,4 +36,5 @@
 
 
 sheets-export-runner/tl-controler-2bd5dd1c5cd9.json
-test-data/exported-to-sheets-sheets.txt
+test-data
+test-data/*

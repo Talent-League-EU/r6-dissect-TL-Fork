@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash
+from flask_wtf import FlaskForm, CSRFProtect
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -23,8 +24,10 @@ import os
 
 def create_app():
     app = Flask(__name__)
+    app.config['APPLICATION_ROOT'] = '/admin'
     app.config['SECRET_KEY'] = 'your_secret_key'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////app/site.db'
+    csrf = CSRFProtect(app)
     
     # Configure logging
     if not os.path.exists('logs'):
@@ -88,12 +91,13 @@ def create_app():
     def dashboard():
         return render_template('dashboard.html')
 
-    # Logout route
-    @app.route('/logout')
+    @app.route('/logout', methods=['GET', 'POST'])
     @login_required
     def logout():
         logout_user()
-        return redirect(url_for('home'))
+        flash('You have been logged out.')
+        return redirect(url_for('login'))
+
     
     @app.route('/debug/users')
     def debug_users():

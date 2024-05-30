@@ -13,6 +13,13 @@
     <button id="test-process" class="btn btn-success">Test Process</button>
     <button id="test-extract" class="btn btn-success">Test Extract</button>
     <button id="test-export" class="btn btn-success">Test Export</button>
+
+    <!-- Logout Button using POST method -->
+    <form action="{{ url_for('admin.logout') }}" method="post" style="display: inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <button type="submit" class="btn btn-warning">Logout</button>
+    </form>
+    
 </div>
 
 <!-- Modal -->
