@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="title">File Upload</title>
+  <title>File Upload</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://unpkg.com/i18next/i18next.min.js"></script>
   <script src="https://unpkg.com/jquery-i18next/jquery-i18next.min.js"></script>
-  <title>File Upload</title>
+  <script src="/js/app.js"></script> <!-- Assuming you move your JS here -->
   <style>
     body, html {
       height: 100%;
@@ -75,7 +76,7 @@
   </video>
   <div class="content">
     <h1 data-i18n="uploadTitle">Upload Match Replay</h1>
-    <div class="instructions" data-i18n="[html]instructions"></div>
+    <div class="instructions" data-i18n="instructions">Follow these steps to upload your replay...</div>
     <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
       <input type="file" name="zipfiles" accept=".zip" multiple required />
       <select name="team" required>
@@ -92,54 +93,42 @@
     <div class="loading-wheel"></div>
     <p data-i18n="waitMessage">Please wait while your files are being uploaded.</p>
   </div>
-
+  
   <script>
-    i18next.init({
-      lng: 'en', // If you want to get language from URL use i18next-browser-languageDetector
-      resources: {
-        en: {
-          translation: {
-            "uploadTitle": "Upload Match Replay",
-            "instructions": "...",
-            "uploadButton": "Upload",
-            "uploading": "Uploading...",
-            "waitMessage": "Please wait while your files are being uploaded."
-          }
-        }
+  i18next
+    .use(i18nextXHRBackend) // Use XHR backend to load translation files
+    .init({
+      lng: 'en',  // Default language
+      debug: true,
+      backend: {
+        loadPath: '/locales/{{lng}}/translation.json'  // Path where the translation files are served
       }
     }, function(err, t) {
+      if (err) console.error('i18next initialization error:', err);
       jqueryI18next.init(i18next, $);
-      $('body').localize();
+      $('body').localize(); // Apply localization
     });
-    
-    document.getElementById('uploadForm').onsubmit = function (event) {
-      event.preventDefault();
-      var formData = new FormData(this);
-
-      // Show the loading popup
-      var loadingPopup = document.getElementById('loadingPopup');
-      loadingPopup.style.display = 'block';
-
-      fetch('/upload', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.text())
+  
+  document.getElementById('uploadForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var formData = new FormData(this);
+    var loadingPopup = document.getElementById('loadingPopup');
+    loadingPopup.style.display = 'block';
+  
+    fetch('/upload', {
+      method: 'POST',
+      body: formData
+    }).then(response => response.text())
       .then(data => {
-        // Hide the loading popup
         loadingPopup.style.display = 'none';
-        if (data === 'Upload successful') {
-          alert('File upload succeeded');
-        } else {
-          alert('Error: ' + data);
-        }
+        alert(data);
       })
       .catch(error => {
-        // Hide the loading popup
         loadingPopup.style.display = 'none';
         alert('An error occurred: ' + error);
       });
-    }
+  });
   </script>
+  
 </body>
 </html>
