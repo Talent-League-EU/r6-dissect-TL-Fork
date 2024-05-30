@@ -1,0 +1,39 @@
+# Use an official Python runtime as a parent image
+FROM python:3.8-slim
+
+# Install awscli and cron
+RUN apt-get update && \
+    apt-get install -y awscli cron && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set the working directory to /app
+WORKDIR /app
+
+# Copy the current directory contents into the container at /app
+COPY . /app
+
+# Install any needed packages specified in requirements.txt
+RUN pip install Flask Flask-Login Flask-SQLAlchemy
+
+# Make port 5004 available to the world outside this container
+EXPOSE 5004
+
+# Define environment variable
+ENV FLASK_APP app.py
+ENV FLASK_RUN_HOST 0.0.0.0
+ENV FLASK_RUN_PORT 5004
+
+# Add crontab file for the cron job
+ADD crontab /etc/cron.d/backup-cron
+
+# Give execution rights on the cron job
+RUN chmod 0644 /etc/cron.d/backup-cron
+
+# Apply cron job
+RUN crontab /etc/cron.d/backup-cron
+
+# Create the log file to be able to run tail
+RUN touch /var/log/cron.log
+
+# Run the command on container startup
+CMD ["sh", "-c", "aws s3 cp s3://tlmrisserver/site.db /app/site.db && cron && python3 admin-portal.py"]

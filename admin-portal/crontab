@@ -1,0 +1,1 @@
+0 3 * * * /usr/bin/aws s3 cp /app/site.db s3://tlmrisserver/site.db >> /var/log/cron.log 2>&1
