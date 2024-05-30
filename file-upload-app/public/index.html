@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="title">File Upload</title>
+  <script src="https://unpkg.com/i18next/i18next.min.js"></script>
+  <script src="https://unpkg.com/jquery-i18next/jquery-i18next.min.js"></script>
   <title>File Upload</title>
   <style>
     body, html {
@@ -71,23 +74,8 @@
     Your browser does not support HTML5 video.
   </video>
   <div class="content">
-    <h1>Upload Match Replay</h1>
-    <div class="instructions">
-      <p>1. Open the match replay folder</p>
-      <p>2. Enter the folder of the match you want to upload</p>
-      <p>3. Select all files</p>
-      <p>4. Use 7zip or your software of choice to compress the files into a zip file</p>
-      <p>5. Rename the file: "YOURTEAMNAME-vs-ENEMYTEAMNAME-(whatever playday your on).zip - if you have multiple matches (bo3, bo5) then add '-MATCH-(the match number)' after the enemy team name"</p>
-      <p>6. Upload the file</p>
-      <p>7. Pick your team name</p>
-      <p>8. Press upload button</p>
-      <p>9. Wait for upload confirmation</p>
-      <p>10. You are free to close your browser</p>
-      <h1>IMPORTANT!</h1>
-      <p>IF YOU HAD A REHOST YOU WILL NEED TO COMBINE YOUR REPLAY FOLDERS. TAKE ALL THE PLAYED ROUNDS FROM THE REPLAY FOLDER BEFORE THE REHOST, AND ALL THE PLAYED ROUNDS FROM THE FOLDER AFTER THE REHOST AND PLACE THEM ALL IN ONE FOLDER BEFORE ZIPPING. THEN CONTINUE FROM STEP 5</p>
-      <p>Its EXTREMELY important you do this. if you do not do this correctly it could result in incorrect stats for your team/incorrect final score for that match. if you need assistance please open a support ticket in our discord!</p>
-      <a href="https://discord.gg/hWxpZJvgNq">discord</a>
-    </div>
+    <h1 data-i18n="uploadTitle">Upload Match Replay</h1>
+    <div class="instructions" data-i18n="[html]instructions"></div>
     <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
       <input type="file" name="zipfiles" accept=".zip" multiple required />
       <select name="team" required>
@@ -95,17 +83,35 @@
         <option value="fnatic">Fnatic</option>
         <option value="liquid">Team Liquid</option>
       </select>
-      <button type="submit">Upload</button>
+      <button type="submit" data-i18n="uploadButton">Upload</button>
     </form>
   </div>
 
   <div class="loading-popup" id="loadingPopup">
-    <h2>Uploading...</h2>
+    <h2 data-i18n="uploading">Uploading...</h2>
     <div class="loading-wheel"></div>
-    <p>Please wait while your files are being uploaded.</p>
+    <p data-i18n="waitMessage">Please wait while your files are being uploaded.</p>
   </div>
 
   <script>
+    i18next.init({
+      lng: 'en', // If you want to get language from URL use i18next-browser-languageDetector
+      resources: {
+        en: {
+          translation: {
+            "uploadTitle": "Upload Match Replay",
+            "instructions": "...",
+            "uploadButton": "Upload",
+            "uploading": "Uploading...",
+            "waitMessage": "Please wait while your files are being uploaded."
+          }
+        }
+      }
+    }, function(err, t) {
+      jqueryI18next.init(i18next, $);
+      $('body').localize();
+    });
+    
     document.getElementById('uploadForm').onsubmit = function (event) {
       event.preventDefault();
       var formData = new FormData(this);

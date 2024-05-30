@@ -3,9 +3,11 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const fs = require('fs');
 const unzipper = require('unzipper');
-const { exec } = require('child_process');
 const path = require('path');
 const AWS = require('aws-sdk');
+const i18next = require('i18next');
+const middleware = require('i18next-http-middleware');
+const FsBackend = require('i18next-fs-backend');
 
 const app = express();
 const port = 5001;
@@ -14,10 +16,29 @@ const bucketName = 'tlmrisserver/pre-exported-data';
 AWS.config.update({ region: 'us-east-1' });
 const s3 = new AWS.S3();
 
+i18next
+  .use(FsBackend)
+  .use(middleware.LanguageDetector)
+  .init({
+    fallbackLng: 'en',
+    backend: {
+      loadPath: './locales/{{lng}}/translation.json',
+    },
+    detection: {
+      order: ['querystring', 'cookie'],
+      caches: ['cookie'],
+    },
+  });
+
+app.use(middleware.handle(i18next));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 const upload = multer({ dest: 'uploads/' });
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
 
 async function uploadToS3(sourcePath, s3Path, isRecursive = true) {
   return new Promise((resolve, reject) => {

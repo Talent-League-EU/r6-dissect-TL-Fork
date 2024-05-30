@@ -38,3 +38,8 @@
 sheets-export-runner/tl-controler-2bd5dd1c5cd9.json
 test-data
 test-data/*
+<<<<<<< HEAD
+=======
+node_modules/*
+
+>>>>>>> a0700c5 (added locales for the uploader and finished off the admin pannel)

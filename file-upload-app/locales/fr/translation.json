@@ -1,0 +1,10 @@
+{
+    "title": "Téléchargement de fichier",
+    "uploadTitle": "Télécharger le replay du match",
+    "instructions": "1. Ouvrez le dossier de replay du match.\n2. Entrez dans le dossier du match que vous souhaitez télécharger.\n3. Sélectionnez tous les fichiers.\n4. Utilisez 7zip ou le logiciel de votre choix pour compresser les fichiers dans un fichier zip.\n5. Renommez le fichier : 'NOMDEVOTREEQUIPE-vs-NOMDELEQUIPEADVERSE-(quel que soit le jour de jeu).zip - si vous avez plusieurs matchs (bo3, bo5) alors ajoutez '-MATCH-(le numéro du match)' après le nom de l'équipe adverse.\n6. Téléchargez le fichier.\n7. Choisissez votre nom d'équipe.\n8. Appuyez sur le bouton de téléchargement.\n9. Attendez la confirmation du téléchargement.\n10. Vous pouvez fermer votre navigateur.\nIMPORTANT ! SI VOUS AVEZ EU UN REHOST, VOUS DEVEZ COMBINER VOS DOSSIERS DE REPLAY. PRENEZ TOUS LES ROUNDS JOUÉS DU DOSSIER DE REPLAY AVANT LE REHOST, ET TOUS LES ROUNDS JOUÉS DU DOSSIER APRÈS LE REHOST ET PLACEZ-LES TOUS DANS UN SEUL DOSSIER AVANT DE ZIPPER. PUIS CONTINUEZ À PARTIR DE L'ÉTAPE 5. Il est extrêmement important de le faire. Si cela n'est pas fait correctement, cela pourrait entraîner des statistiques incorrectes pour votre équipe/un score final incorrect pour ce match. Si vous avez besoin d'aide, veuillez ouvrir un ticket de support dans notre discord !",
+    "uploadButton": "Télécharger",
+    "uploadingTitle": "Téléchargement...",
+    "waitMessage": "Veuillez attendre pendant que vos fichiers sont téléchargés.",
+    "discordLink": "Rejoignez notre Discord"
+  }
+  
