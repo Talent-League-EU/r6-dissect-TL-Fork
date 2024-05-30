@@ -15,11 +15,7 @@
     <button id="test-export" class="btn btn-success">Test Export</button>
 
     <!-- Logout Button using POST method -->
-<<<<<<< HEAD
-    <form action="{{ url_for('admin.logout') }}" method="post" style="display: inline;">
-=======
     <form action="/admin/logout" method="post" style="display: inline;">
->>>>>>> a0700c5 (added locales for the uploader and finished off the admin pannel)
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <button type="submit" class="btn btn-warning">Logout</button>
     </form>
