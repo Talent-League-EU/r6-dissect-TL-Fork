@@ -1,0 +1,11 @@
+{
+    "title": "File Upload",
+    "uploadTitle": "Upload Match Replay",
+    "instructions": "1. Open the match replay folder.\n2. Enter the folder of the match you want to upload.\n3. Select all files.\n4. Use 7zip or your software of choice to compress the files into a zip file.\n5. Rename the file: 'YOURTEAMNAME-vs-ENEMYTEAMNAME-(whatever playday you're on).zip - if you have multiple matches (bo3, bo5) then add '-MATCH-(the match number)' after the enemy team name.\n6. Upload the file.\n7. Pick your team name.\n8. Press upload button.\n9. Wait for upload confirmation.\n10. You are free to close your browser.\nIMPORTANT! IF YOU HAD A REHOST YOU WILL NEED TO COMBINE YOUR REPLAY FOLDERS. TAKE ALL THE PLAYED ROUNDS FROM THE REPLAY FOLDER BEFORE THE REHOST, AND ALL THE PLAYED ROUNDS FROM THE FOLDER AFTER THE REHOST AND PLACE THEM ALL IN ONE FOLDER BEFORE ZIPPING. THEN CONTINUE FROM STEP 5. It's EXTREMELY important you do this. If you do not do this correctly it could result in incorrect stats for your team/incorrect final score for that match. If you need assistance please open a support ticket in our discord!",
+    "uploadButton": "Upload",
+    "uploadingTitle": "Uploading...",
+    "waitMessage": "Please wait while your files are being uploaded.",
+    "discordLink": "Join our Discord",
+    "dragDrop": "Drag 'n' drop some files here, or click to select files"
+  }
+  

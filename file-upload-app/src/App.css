@@ -1,0 +1,14 @@
+.App {
+    text-align: center;
+  }
+  
+  .dropzone {
+    border: 2px dashed #cccccc;
+    padding: 20px;
+    margin: 20px;
+  }
+  
+  .error {
+    color: red;
+  }
+  
