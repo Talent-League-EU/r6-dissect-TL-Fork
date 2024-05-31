@@ -10,7 +10,7 @@ const S3_BUCKET = 's3://tlmrisserver/pre-exported-data';
 
 // Middleware for file uploads
 app.use(fileUpload({
-  limits: { fileSize: 200 * 1024 * 1024 }, // Set file size limit to 200MB
+  limits: { fileSize: 500 * 1024 * 1024 }, // Set file size limit to 500MB
 }));
 
 // Endpoint for uploading files
