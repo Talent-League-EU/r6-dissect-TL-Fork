@@ -15,7 +15,9 @@ app.use(fileUpload({
 
 // Endpoint for uploading files
 app.post('/upload', async (req, res) => {
+  console.log('Upload request received');
   if (!req.files || Object.keys(req.files).length === 0) {
+    console.log('No files were uploaded');
     return res.status(400).send('No files were uploaded.');
   }
 
@@ -23,13 +25,18 @@ app.post('/upload', async (req, res) => {
   const teamName = req.body.teamName;
   const uploadPath = path.join('/tmp', zipFile.name);
 
+  console.log(`Received file: ${zipFile.name}, team: ${teamName}`);
   zipFile.mv(uploadPath, async (err) => {
-    if (err) return res.status(500).send(err);
+    if (err) {
+      console.error('Error moving file:', err);
+      return res.status(500).send(err);
+    }
 
     try {
       const fileKey = `${path.basename(zipFile.name, '.zip')}-${teamName}`;
       const command = `aws s3 cp ${uploadPath} ${S3_BUCKET}/${fileKey}.zip`;
 
+      console.log(`Executing command: ${command}`);
       exec(command, (error, stdout, stderr) => {
         if (error) {
           console.error(`exec error: ${error}`);
@@ -40,10 +47,16 @@ app.post('/upload', async (req, res) => {
         res.send('File uploaded!');
       });
     } catch (err) {
+      console.error('Upload failed:', err);
       res.status(500).send(`Upload failed: ${err.message}`);
     } finally {
       // Clean up the file after upload
-      fs.unlinkSync(uploadPath);
+      try {
+        fs.unlinkSync(uploadPath);
+        console.log(`Cleaned up file: ${uploadPath}`);
+      } catch (cleanupError) {
+        console.error('Error cleaning up file:', cleanupError);
+      }
     }
   });
 });
