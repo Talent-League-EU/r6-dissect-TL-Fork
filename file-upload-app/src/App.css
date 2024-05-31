@@ -1,48 +1,61 @@
 .App {
-    text-align: center;
-    position: relative;
-    z-index: 1;
-  }
-  
-  .background-video {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    min-width: 100%;
-    min-height: 100%;
-    z-index: -1;
-    object-fit: cover;
-  }
-  
-  .content {
-    position: relative;
-    z-index: 1;
-    background-color: rgba(0, 0, 0, 0.5); /* Black with 50% opacity */
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
-    max-width: 600px;
-    margin: 20px auto;
-  }
-  
-  .dropzone {
-    border: 2px dashed #cccccc;
-    padding: 20px;
-    margin: 20px;
-    background-color: rgba(255, 255, 255, 0.3); /* White with 30% opacity */
-  }
-  
-  .error {
-    color: red;
-  }
-  
-  .language-switcher {
-    margin-top: 20px;
-  }
-  
-  .language-switcher button {
-    margin: 5px;
-    padding: 10px;
-    cursor: pointer;
-  }
-  
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.background-video {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+  z-index: -1;
+  object-fit: cover;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.5); /* Black with 50% opacity */
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.dropzone {
+  border: 2px dashed #cccccc;
+  padding: 20px;
+  margin: 20px;
+  background-color: rgba(255, 255, 255, 0.3); /* White with 30% opacity */
+}
+
+.error {
+  color: red;
+}
+
+.language-switcher {
+  margin-top: 20px;
+}
+
+.language-switcher button {
+  margin: 5px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.discord-link {
+  margin-top: 20px;
+}
+
+.discord-link a {
+  color: #7289da;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.discord-link a:hover {
+  text-decoration: underline;
+}

@@ -98,6 +98,11 @@ const App = () => {
           <button onClick={() => changeLanguage('fr')}>French</button>
           <button onClick={() => changeLanguage('de')}>German</button>
         </div>
+        <div className="discord-link">
+          <a href="https://discord.gg/hYUsSxzK5a" target="_blank" rel="noopener noreferrer">
+            {t('discordLink')}
+          </a>
+        </div>
       </div>
     </div>
   );

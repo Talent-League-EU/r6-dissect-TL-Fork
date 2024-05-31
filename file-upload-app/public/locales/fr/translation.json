@@ -1,11 +1,9 @@
 {
-    "title": "Téléchargement de fichier",
-    "uploadTitle": "Télécharger le replay du match",
-    "instructions": "1. Ouvrez le dossier de replay du match.\n2. Entrez dans le dossier du match que vous souhaitez télécharger.\n3. Sélectionnez tous les fichiers.\n4. Utilisez 7zip ou le logiciel de votre choix pour compresser les fichiers dans un fichier zip.\n5. Renommez le fichier : 'NOMDEVOTREEQUIPE-vs-NOMDELEQUIPEADVERSE-(quel que soit le jour de jeu).zip - si vous avez plusieurs matchs (bo3, bo5) alors ajoutez '-MATCH-(le numéro du match)' après le nom de l'équipe adverse.\n6. Téléchargez le fichier.\n7. Choisissez votre nom d'équipe.\n8. Appuyez sur le bouton de téléchargement.\n9. Attendez la confirmation du téléchargement.\n10. Vous pouvez fermer votre navigateur.\nIMPORTANT ! SI VOUS AVEZ EU UN REHOST, VOUS DEVEZ COMBINER VOS DOSSIERS DE REPLAY. PRENEZ TOUS LES ROUNDS JOUÉS DU DOSSIER DE REPLAY AVANT LE REHOST, ET TOUS LES ROUNDS JOUÉS DU DOSSIER APRÈS LE REHOST ET PLACEZ-LES TOUS DANS UN SEUL DOSSIER AVANT DE ZIPPER. PUIS CONTINUEZ À PARTIR DE L'ÉTAPE 5. Il est extrêmement important de le faire. Si cela n'est pas fait correctement, cela pourrait entraîner des statistiques incorrectes pour votre équipe/un score final incorrect pour ce match. Si vous avez besoin d'aide, veuillez ouvrir un ticket de support dans notre discord !",
-    "uploadButton": "Télécharger",
-    "uploadingTitle": "Téléchargement...",
-    "waitMessage": "Veuillez attendre pendant que vos fichiers sont téléchargés.",
-    "discordLink": "Rejoignez notre Discord",
-    "dragDrop": "Déposez des fichiers ici, ou cliquez pour sélectionner des fichiers"
+  "title": "Téléchargement de fichier",
+  "uploadTitle": "Téléchargement du Replay",
+  "instructions": "1. Ouvre le dossier Match Replay.\n2. Ouvre le dossier du match que tu souhaites télécharger.\n3. Sélectionne tous les fichiers de rounds.\n4. Utilise 7zip ou un autre logiciel pour compresser les fichiers dans un fichier zip.\n5. Renomme le fichier : TON EQUIPE_vs_EQUIPE ENNEMIE_PLAYDAY.zip\n S'il y a plusieurs manches (bo3, bo5), ajoutes 'MATCH_1' \n(par exemple) avant PLAYDAY.\n6. Sélectionne le fichier .zip.\n7. Sélectionne ton équipe.\n8. Clique sur Télécharger.\n9. Attends pour la confirmation.\n10. Une fois le téléchargement confirmé, tu peux quitter la page.\nIMPORTANT ! S'il y a eu un ou plusieurs REHOST, tu dois combiner les fichiers de rounds (.rec).\n Pour cela, met les rounds d'avant Rehost dans un dossier,\n puis ajoute les rounds d'après Rehost dans le même dossier.\n Enfin, sélectionne l'ensemble des rounds et compresse-les en un fichier .zip.\n Ensuite, suis les étapes au-dessus. Il faut ABSOLUMENT respecter les étapes,\n sinon les statistiques ne seront pas prises en compte.\n Si tu n'es pas sûr de ce que tu dois faire ou que tu as une question,\n ouvre un ticket sur notre serveur discord !",
+  "uploadButton": "Télécharger",
+  "uploadingTitle": "Téléchargement...",
+  "waitMessage": "Veuillez attendre la fin du téléchargement.",
+  "discordLink": "Rejoignez notre Discord"
   }
-  
