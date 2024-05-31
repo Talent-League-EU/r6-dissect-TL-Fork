@@ -29,7 +29,7 @@ services:
   file-upload:
     build:
       context: ./file-upload-app
-      dockerfile: file-upload-app/Dockerfile-file-upload-app
+      dockerfile: Dockerfile-file-upload-app
     ports:
       - "5001:5001"
     user: root
