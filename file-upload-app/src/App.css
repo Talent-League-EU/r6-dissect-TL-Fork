@@ -17,12 +17,19 @@
   .content {
     position: relative;
     z-index: 1;
+    background-color: rgba(0, 0, 0, 0.5); /* Black with 50% opacity */
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 600px;
+    margin: 20px auto;
   }
   
   .dropzone {
     border: 2px dashed #cccccc;
     padding: 20px;
     margin: 20px;
+    background-color: rgba(255, 255, 255, 0.3); /* White with 30% opacity */
   }
   
   .error {
