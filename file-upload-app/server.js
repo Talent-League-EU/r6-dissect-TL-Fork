@@ -13,14 +13,23 @@ app.use(express.static(path.join(__dirname, 'build')));
 
 app.post('/upload', async (req, res) => {
   if (!req.files || !req.files.file) {
+    console.error('No files were uploaded.');
     return res.status(400).send('No files were uploaded.');
   }
 
   const zipFile = req.files.file;
+  console.log(`Received file: ${zipFile.name}, size: ${zipFile.size} bytes`);
+
+  if (zipFile.size > 200 * 1024 * 1024) { // 200MB limit
+    console.error('File size exceeds limit.');
+    return res.status(400).send('File size exceeds limit.');
+  }
+
   const uploadPath = path.join(__dirname, 'uploads', zipFile.name);
 
   zipFile.mv(uploadPath, async (err) => {
     if (err) {
+      console.error('Error moving file:', err);
       return res.status(500).send(err);
     }
 
@@ -28,6 +37,7 @@ app.post('/upload', async (req, res) => {
 
     if (!directory.files.every(file => file.path.endsWith('.rec'))) {
       fs.unlinkSync(uploadPath);
+      console.error('All files inside the zip must be .rec files.');
       return res.status(400).send('All files inside the zip must be .rec files.');
     }
 
@@ -37,9 +47,10 @@ app.post('/upload', async (req, res) => {
     exec(command, (err, stdout, stderr) => {
       fs.unlinkSync(uploadPath);
       if (err) {
-        console.error(err);
+        console.error('Error uploading files:', err);
         return res.status(500).send('Error uploading files.');
       }
+      console.log('Files uploaded successfully:', stdout);
       res.send('Files uploaded successfully.');
     });
   });
