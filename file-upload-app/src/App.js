@@ -26,11 +26,12 @@ i18n
 
 const App = () => {
   const { t } = useTranslation();
-  const [team, setTeam] = useState('ITBA');
+  const [team, setTeam] = useState('');
+  const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleDrop = async (acceptedFiles) => {
+  const handleDrop = (acceptedFiles) => {
     setError(null);
 
     if (acceptedFiles.length !== 1 || !acceptedFiles[0].name.endsWith('.zip')) {
@@ -38,8 +39,22 @@ const App = () => {
       return;
     }
 
+    setFile(acceptedFiles[0]);
+  };
+
+  const handleUpload = async () => {
+    if (!team) {
+      setError('Please pick a team.');
+      return;
+    }
+
+    if (!file) {
+      setError('Please upload a file.');
+      return;
+    }
+
     const formData = new FormData();
-    formData.append('file', acceptedFiles[0]);
+    formData.append('file', file);
     formData.append('team', team);
 
     setIsUploading(true);
@@ -82,11 +97,12 @@ const App = () => {
           {({ getRootProps, getInputProps }) => (
             <div {...getRootProps({ className: 'dropzone' })}>
               <input {...getInputProps()} />
-              <p>{t('dragDrop')}</p>
+              <p>{file ? file.name : t('dragDrop')}</p>
             </div>
           )}
         </Dropzone>
         <select value={team} onChange={(e) => setTeam(e.target.value)}>
+          <option value="" disabled>{t('pickTeam')}</option>
           <option value="MYTH">MYTH</option>
           <option value="RUPTURE">RUPTURE</option>
           <option value="GO2LIMITS">GO2LIMITS</option>
@@ -104,7 +120,7 @@ const App = () => {
           <option value="ICEFORCEMAIN">ICEFORCEMAIN</option>
           <option value="BEE">BEE</option>
         </select>
-        <button onClick={handleDrop}>{t('uploadButton')}</button>
+        <button onClick={handleUpload}>{t('uploadButton')}</button>
         {isUploading && <p>{t('uploadingTitle')}</p>}
         {error && <p className="error">{error}</p>}
         <div className="language-switcher">
@@ -113,7 +129,7 @@ const App = () => {
           <button onClick={() => changeLanguage('de')}>German</button>
         </div>
         <div className="discord-link">
-          <a href="https://discord.gg/hYUsSxzK5a" target="_blank" rel="noopener noreferrer">
+          <a href="https://discord.com" target="_blank" rel="noopener noreferrer">
             {t('discordLink')}
           </a>
         </div>
@@ -123,3 +139,8 @@ const App = () => {
 };
 
 export default App;
+
+
+
+
+
