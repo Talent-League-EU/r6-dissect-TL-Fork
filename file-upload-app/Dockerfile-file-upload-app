@@ -1,6 +1,11 @@
 # Use the official Node.js 14 image.
 FROM node:14
 
+# Install AWS CLI
+RUN apt-get update && \
+    apt-get install -y python3-pip && \
+    pip3 install awscli
+
 # Create and change to the app directory.
 WORKDIR /usr/src/app
 

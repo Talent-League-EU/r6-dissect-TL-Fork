@@ -27,6 +27,8 @@
   display: inline-block;
   text-align: left;
   max-width: 600px; /* Limit the width to avoid it stretching too far */
+  word-wrap: break-word; /* Ensure long words break to fit within the container */
+  white-space: pre-wrap; /* Preserve whitespace for preformatted text */
 }
 
 .error {
@@ -72,5 +74,20 @@ a:hover {
 }
 
 .language-select button:hover {
+  background: #555;
+}
+
+#team-select {
+  display: block;
+  margin-bottom: 20px;
+  padding: 10px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#team-select:hover {
   background: #555;
 }
