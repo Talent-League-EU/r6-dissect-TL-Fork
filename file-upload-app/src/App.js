@@ -66,24 +66,30 @@ const App = () => {
 
   return (
     <div className="App">
-      <h1>{t('title')}</h1>
-      <h2>{t('uploadTitle')}</h2>
-      <pre>{t('instructions')}</pre>
-      <Dropzone onDrop={handleDrop} accept=".zip">
-        {({ getRootProps, getInputProps }) => (
-          <div {...getRootProps({ className: 'dropzone' })}>
-            <input {...getInputProps()} />
-            <p>{t('dragDrop')}</p>
-          </div>
-        )}
-      </Dropzone>
-      <select value={team} onChange={(e) => setTeam(e.target.value)}>
-        <option value="ITBA">ITBA</option>
-        <option value="NIP">NIP</option>
-      </select>
-      <button onClick={handleDrop}>{t('uploadButton')}</button>
-      {isUploading && <p>{t('uploadingTitle')}</p>}
-      {error && <p className="error">{error}</p>}
+      <video autoPlay loop muted className="background-video">
+        <source src="/background.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <div className="content">
+        <h1>{t('title')}</h1>
+        <h2>{t('uploadTitle')}</h2>
+        <pre>{t('instructions')}</pre>
+        <Dropzone onDrop={handleDrop} accept=".zip">
+          {({ getRootProps, getInputProps }) => (
+            <div {...getRootProps({ className: 'dropzone' })}>
+              <input {...getInputProps()} />
+              <p>{t('dragDrop')}</p>
+            </div>
+          )}
+        </Dropzone>
+        <select value={team} onChange={(e) => setTeam(e.target.value)}>
+          <option value="ITBA">ITBA</option>
+          <option value="NIP">NIP</option>
+        </select>
+        <button onClick={handleDrop}>{t('uploadButton')}</button>
+        {isUploading && <p>{t('uploadingTitle')}</p>}
+        {error && <p className="error">{error}</p>}
+      </div>
     </div>
   );
 };
