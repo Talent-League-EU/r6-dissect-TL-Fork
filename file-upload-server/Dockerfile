@@ -8,20 +8,18 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies.
-RUN npm install
+RUN npm install express express-fileupload
 
 # Copy local code to the container image.
 COPY . .
 
-# Build the app for production.
-RUN npm run build
+# Install AWS CLI
+RUN apt-get update && \
+    apt-get install -y python3-pip && \
+    pip3 install awscli
 
-# Use a base image for serving the build files.
-FROM nginx:alpine
-COPY --from=0 /usr/src/app/build /usr/share/nginx/html
-
-# Expose port 80 to the outside world
-EXPOSE 80
+# Expose port 5001 to the outside world
+EXPOSE 5001
 
 # Start the server.
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "index.js"]

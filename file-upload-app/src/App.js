@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import LocalizedStrings from 'react-localization';
-import JSZip from 'jszip';
 import './App.css';
 import backgroundVideo from './background.mp4';
 
@@ -12,13 +11,13 @@ let strings = new LocalizedStrings({
     2. Enter the folder of the match you want to upload.\n
     3. Select all files.\n
     4. Use 7zip or your software of choice to compress the files into a zip file.\n
-    5. Rename the file: 'YOURTEAMNAME-vs-ENEMYTEAMNAME-(whatever playday you're on).zip\n - if you have multiple matches (bo3, bo5) then add '-MATCH-(the match number)' after the enemy team name.\n
+    5. Rename the file: 'YOURTEAMNAME-vs-ENEMYTEAMNAME-(whatever playday you're on).zip - if you have multiple matches (bo3, bo5) then add '-MATCH-(the match number)' after the enemy team name.\n
     6. Upload the file.\n
     7. Pick your team name.\n
     8. Press upload button.\n
     9. Wait for upload confirmation.\n
     10. You are free to close your browser.\n
-    \nIMPORTANT! IF YOU HAD A REHOST YOU WILL NEED TO COMBINE YOUR REPLAY FOLDERS.\n TAKE ALL THE PLAYED ROUNDS FROM THE REPLAY FOLDER BEFORE THE REHOST,\n AND ALL THE PLAYED ROUNDS FROM THE FOLDER AFTER THE REHOST\n AND PLACE THEM ALL IN ONE FOLDER BEFORE ZIPPING. THEN CONTINUE FROM STEP 5.\n It's EXTREMELY important you do this. If you do not do this correctly\n it could result in incorrect stats for your team/incorrect final score for that match.\n If you need assistance please open a support ticket in our discord!`,
+    IMPORTANT! IF YOU HAD A REHOST YOU WILL NEED TO COMBINE YOUR REPLAY FOLDERS. TAKE ALL THE PLAYED ROUNDS FROM THE REPLAY FOLDER BEFORE THE REHOST, AND ALL THE PLAYED ROUNDS FROM THE FOLDER AFTER THE REHOST AND PLACE THEM ALL IN ONE FOLDER BEFORE ZIPPING. THEN CONTINUE FROM STEP 5. It's EXTREMELY important you do this. If you do not do this correctly it could result in incorrect stats for your team/incorrect final score for that match. If you need assistance please open a support ticket in our discord!`,
     uploadButton: "Upload",
     uploadingTitle: "Uploading...",
     waitMessage: "Please wait while your files are being uploaded.",
@@ -64,8 +63,7 @@ let strings = new LocalizedStrings({
   }
 });
 
-const S3_BUCKET = 's3://tlmrisserver/pre-exported-data';
-const REGION = 'us-east-1'; // Adjust as necessary
+const API_URL = 'http://localhost:5001/upload';
 
 function App() {
   const [zipFile, setZipFile] = useState(null);
@@ -98,24 +96,18 @@ function App() {
     setUploading(true);
     setError('');
 
+    const formData = new FormData();
+    formData.append('file', zipFile);
+    formData.append('teamName', teamName);
+
     try {
-      const zip = new JSZip();
-      const content = await zip.loadAsync(zipFile);
-      const allFiles = Object.keys(content.files);
-      const recFiles = allFiles.filter(file => file.endsWith('.rec'));
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        body: formData,
+      });
 
-      if (recFiles.length !== allFiles.length) {
-        throw new Error('The zip file contains non-.rec files.');
-      }
-
-      const fileKey = `${zipFile.name.replace('.zip', '')}-${teamName}`;
-
-      const tempDir = '/tmp/upload'; // Directory to extract the files temporarily
-      await zip.extractAllTo(tempDir, true);
-
-      for (const fileName of recFiles) {
-        const filePath = `${tempDir}/${fileName}`;
-        await executeAwsCliUpload(filePath, fileKey, fileName);
+      if (!response.ok) {
+        throw new Error('Upload failed.');
       }
 
       alert('Upload successful!');
@@ -124,20 +116,6 @@ function App() {
     } finally {
       setUploading(false);
     }
-  };
-
-  const executeAwsCliUpload = async (filePath, fileKey, fileName) => {
-    const exec = require('child_process').exec;
-    return new Promise((resolve, reject) => {
-      const command = `aws s3 cp ${filePath} ${S3_BUCKET}/${fileKey}/${fileName}`;
-      exec(command, (error, stdout, stderr) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(stdout);
-        }
-      });
-    });
   };
 
   const changeLanguage = (lang) => {
