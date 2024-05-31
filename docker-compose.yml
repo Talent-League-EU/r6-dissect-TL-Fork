@@ -14,12 +14,6 @@ services:
       - file-export
       - sheets-export
 
-  file-upload-app:
-    build:
-      context: ./file-upload-app
-    ports:
-      - "5001:5001"
-
   file-monitor:
     build:
       context: .
@@ -52,6 +46,12 @@ services:
     volumes:
       - /etc/TLMRIS/sheets-export-runner/service-account-file.json:/app/service-account-file.json:ro
 
+  file-upload-app:
+    build:
+      context: ./file-upload-app
+    ports:
+      - "5001:5001"
+
   nginx:
     image: nginx:latest
     ports:
@@ -62,3 +62,4 @@ services:
       - file-monitor
       - file-export
       - sheets-export
+      - file-upload-app
