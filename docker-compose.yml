@@ -18,7 +18,7 @@ services:
 
   file-monitor:
     build:
-      context: .
+      context: ./file-upload-app
       dockerfile: dissect-runner/Dockerfile-r6-dissect-runner
     ports:
       - "5000:5000"
