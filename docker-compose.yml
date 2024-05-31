@@ -50,7 +50,10 @@ services:
     build:
       context: ./file-upload-app
     ports:
-      - "5001:5001"
+        - "5001:5001"
+    user: root
+    environment:
+      - FLASK_ENV=development
 
   nginx:
     image: nginx:latest
@@ -63,3 +66,4 @@ services:
       - file-export
       - sheets-export
       - file-upload-app
+      - admin-portal
