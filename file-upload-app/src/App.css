@@ -36,3 +36,13 @@
     color: red;
   }
   
+  .language-switcher {
+    margin-top: 20px;
+  }
+  
+  .language-switcher button {
+    margin: 5px;
+    padding: 10px;
+    cursor: pointer;
+  }
+  

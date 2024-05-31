@@ -13,7 +13,7 @@ i18n
   .init({
     fallbackLng: 'en',
     detection: {
-      order: ['cookie', 'localStorage', 'navigator'],
+      order: ['querystring', 'cookie', 'localStorage', 'navigator'],
       caches: ['cookie']
     },
     backend: {
@@ -64,6 +64,10 @@ const App = () => {
     setIsUploading(false);
   };
 
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+  };
+
   return (
     <div className="App">
       <video autoPlay loop muted className="background-video">
@@ -89,6 +93,11 @@ const App = () => {
         <button onClick={handleDrop}>{t('uploadButton')}</button>
         {isUploading && <p>{t('uploadingTitle')}</p>}
         {error && <p className="error">{error}</p>}
+        <div className="language-switcher">
+          <button onClick={() => changeLanguage('en')}>English</button>
+          <button onClick={() => changeLanguage('fr')}>French</button>
+          <button onClick={() => changeLanguage('de')}>German</button>
+        </div>
       </div>
     </div>
   );
