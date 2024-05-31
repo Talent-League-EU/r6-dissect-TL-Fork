@@ -20,7 +20,7 @@ app.post('/upload', async (req, res) => {
   const zipFile = req.files.file;
   console.log(`Received file: ${zipFile.name}, size: ${zipFile.size} bytes`);
 
-  if (zipFile.size > 200 * 1024 * 1024) { // 200MB limit
+  if (zipFile.size > 500 * 1024 * 1024) { // 500MB limit
     console.error('File size exceeds limit.');
     return res.status(400).send('File size exceeds limit.');
   }
@@ -48,6 +48,8 @@ app.post('/upload', async (req, res) => {
       fs.unlinkSync(uploadPath);
       if (err) {
         console.error('Error uploading files:', err);
+        console.error('stdout:', stdout);
+        console.error('stderr:', stderr);
         return res.status(500).send('Error uploading files.');
       }
       console.log('Files uploaded successfully:', stdout);
