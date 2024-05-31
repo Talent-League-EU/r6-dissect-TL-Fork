@@ -87,8 +87,22 @@ const App = () => {
           )}
         </Dropzone>
         <select value={team} onChange={(e) => setTeam(e.target.value)}>
-          <option value="ITBA">ITBA</option>
-          <option value="NIP">NIP</option>
+          <option value="MYTH">MYTH</option>
+          <option value="RUPTURE">RUPTURE</option>
+          <option value="GO2LIMITS">GO2LIMITS</option>
+          <option value="DAVINCITALENTS">DAVINCITALENTS</option>
+          <option value="INF">INF</option>
+          <option value="LARSISTFALLOBST">LARSISTFALLOBST</option>
+          <option value="NXT">NXT</option>
+          <option value="COFFEIN">COFFEIN</option>
+          <option value="WILDCATS">WILDCATS</option>
+          <option value="SOULSHEART">SOULSHEART</option>
+          <option value="BMB">BMB</option>
+          <option value="FALKE">FALKE</option>
+          <option value="SOKUDO">SOKUDO</option>
+          <option value="STAXCC">STAXCC</option>
+          <option value="ICEFORCEMAIN">ICEFORCEMAIN</option>
+          <option value="BEE">BEE</option>
         </select>
         <button onClick={handleDrop}>{t('uploadButton')}</button>
         {isUploading && <p>{t('uploadingTitle')}</p>}
