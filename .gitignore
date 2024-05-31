@@ -40,3 +40,31 @@ test-data
 test-data/*
 node_modules/*
 
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/file-upload-app/node_modules
+/file-upload-app//.pnp
+/file-upload-app/.pnp.js
+
+# testing
+/file-upload-app//coverage
+
+# production
+/file-upload-app//build
+
+# misc
+/file-upload-app/.DS_Store
+/file-upload-app/.env.local
+/file-upload-app/.env.development.local
+/file-upload-app/.env.test.local
+/file-upload-app/.env.production.local
+
+/file-upload-app/npm-debug.log*
+/file-upload-app/yarn-debug.log*
+/file-upload-app/yarn-error.log*
+
+
+
+/file-upload-app-bak
