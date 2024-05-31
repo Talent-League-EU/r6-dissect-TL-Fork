@@ -68,3 +68,5 @@ node_modules/*
 
 
 /file-upload-app-bak
+
+/file-upload-server/node_modules

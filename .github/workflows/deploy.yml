@@ -23,7 +23,6 @@ jobs:
     - name: Replace placeholders with double quotes and create JSON file
       run: |
         echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}" | sed 's/'\''/"/g' > service-account-file.json
-        cat service-account-file.json # Print the JSON content for debugging
 
     - name: Base64 encode the service account JSON
       run: |

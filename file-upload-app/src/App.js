@@ -63,7 +63,7 @@ let strings = new LocalizedStrings({
   }
 });
 
-const API_URL = 'http://localhost:5001/upload';
+const API_URL = '/api/upload';
 
 function App() {
   const [zipFile, setZipFile] = useState(null);

@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies.
-RUN npm install express express-fileupload
+RUN npm install
 
 # Copy local code to the container image.
 COPY . .
@@ -22,4 +22,4 @@ RUN apt-get update && \
 EXPOSE 5001
 
 # Start the server.
-CMD ["node", "index.js"]
+CMD ["npm", "start"]
