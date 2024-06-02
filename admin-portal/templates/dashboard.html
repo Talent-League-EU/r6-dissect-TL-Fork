@@ -52,11 +52,11 @@
 
     $('#test-all').click(function() {
         disableButtons();
-        $.post('http://35.177.150.58:5000/api/runner', function(data) {
+        $.post('http://www.talent-league.org/process/api/runner', function(data) {
             showModal('Process Response: ' + data);
-            $.post('http://35.177.150.58:5002/api/runner', function(data) {
+            $.post('http://www.talent-league.org/extract/api/runner', function(data) {
                 showModal('Extract Response: ' + data);
-                $.post('http://35.177.150.58:5003/api/runner', function(data) {
+                $.post('http://www.talent-league.org/export/api/runner', function(data) {
                     showModal('Export Response: ' + data);
                 });
             });
@@ -65,21 +65,21 @@
 
     $('#test-process').click(function() {
         disableButtons();
-        $.post('http://35.177.150.58:5000/api/runner', function(data) {
+        $.post('http://www.talent-league.org/process/api/runner', function(data) {
             showModal('Process Response: ' + data);
         });
     });
 
     $('#test-extract').click(function() {
         disableButtons();
-        $.post('http://35.177.150.58:5002/api/runner', function(data) {
+        $.post('http://www.talent-league.org/extract/api/runner', function(data) {
             showModal('Extract Response: ' + data);
         });
     });
 
     $('#test-export').click(function() {
         disableButtons();
-        $.post('http://35.177.150.58:5003/api/runner', function(data) {
+        $.post('http://www.talent-league.org/export/api/runner', function(data) {
             showModal('Export Response: ' + data);
         });
     });

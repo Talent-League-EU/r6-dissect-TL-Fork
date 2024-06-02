@@ -51,10 +51,17 @@ def create_csv_from_json(json_file_path):
     
     # Define the CSV headers
     headers = [
-        "Players", "Rounds", "Kills", "Deaths", "Entry Kills", "Entry Deaths", 
+        "Date", "Team", "Players", "Rounds", "Kills", "Deaths", "Entry Kills", "Entry Deaths", 
         "HS%", "1vX", "Refrags", "Plants", "Defuses", "Attack Main", "Defense Main", "KOST"
     ]
     
+    # Extract date from the first timestamp
+    date = data['rounds'][0]['timestamp'].split('T')[0]
+    
+    # Extract team names
+    teams = data['rounds'][0]['teams']
+    team_names = {0: teams[0]['name'], 1: teams[1]['name']}
+
     # List of operators considered as attackers
     attack_operators = [
         "Sledge", "Thatcher", "Ash", "Thermite", "Twitch", "Montagne", "Glaz",
@@ -85,6 +92,8 @@ def create_csv_from_json(json_file_path):
 
         for player in round_data['players']:
             username = player['username']
+            team_index = player['teamIndex']
+            team_name = team_names[team_index]
             operator_name = player['operator']['name']
             if username not in operator_counts:
                 operator_counts[username] = {"attack": Counter(), "defense": Counter()}
@@ -112,8 +121,12 @@ def create_csv_from_json(json_file_path):
 
         for stat in round_data['stats']:
             username = stat['username']
+            team_index = stat['teamIndex']
+            team_name = team_names[team_index]
             if username not in player_stats:
                 player_stats[username] = {
+                    "Date": date,
+                    "Team": team_name,
                     "Rounds": 0, "Kills": 0, "Deaths": 0, "Entry Kills": 0, "Entry Deaths": 0, 
                     "HS%": 0, "1vX": 0, "Refrags": 0, "Plants": 0, "Defuses": 0, 
                     "Attack Main": "", "Defense Main": "", "KOST": 0
