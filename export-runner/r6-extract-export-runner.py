@@ -83,10 +83,10 @@ def create_csv_from_json(json_file_path):
     player_stats = {}
     operator_counts = {}
     rounds_contributions = {}  # Track contributions per round
-    
+
     for round_data in data['rounds']:
         round_number = round_data['roundNumber']
-        
+
         # Track operator swaps
         operator_swaps = {}
 
@@ -103,7 +103,14 @@ def create_csv_from_json(json_file_path):
             elif operator_name in defense_operators:
                 operator_counts[username]["defense"][operator_name] += 1
             
-            logging.info(f"Round {round_number}: {username} is using {operator_name}")
+            if username not in player_stats:
+                player_stats[username] = {
+                    "Date": date,
+                    "Team": team_name,
+                    "Rounds": 0, "Kills": 0, "Deaths": 0, "Entry Kills": 0, "Entry Deaths": 0, 
+                    "HS%": 0, "1vX": 0, "Refrags": 0, "Plants": 0, "Defuses": 0, 
+                    "Attack Main": "", "Defense Main": "", "KOST": 0
+                }
 
         # Check for operator swaps and update operator name
         for feedback in round_data['matchFeedback']:
@@ -121,21 +128,12 @@ def create_csv_from_json(json_file_path):
 
         for stat in round_data['stats']:
             username = stat['username']
-            team_index = stat['teamIndex']
-            team_name = team_names[team_index]
-            if username not in player_stats:
-                player_stats[username] = {
-                    "Date": date,
-                    "Team": team_name,
-                    "Rounds": 0, "Kills": 0, "Deaths": 0, "Entry Kills": 0, "Entry Deaths": 0, 
-                    "HS%": 0, "1vX": 0, "Refrags": 0, "Plants": 0, "Defuses": 0, 
-                    "Attack Main": "", "Defense Main": "", "KOST": 0
-                }
-            player_stats[username]["Rounds"] += 1
-            player_stats[username]["Kills"] += stat.get("kills", 0)
-            player_stats[username]["Deaths"] += stat.get("died", 0)
-            if "1vX" in stat:
-                player_stats[username]["1vX"] += 1
+            if username in player_stats:
+                player_stats[username]["Rounds"] += 1
+                player_stats[username]["Kills"] += stat.get("kills", 0)
+                player_stats[username]["Deaths"] += stat.get("died", 0)
+                if "1vX" in stat:
+                    player_stats[username]["1vX"] += 1
 
         # Extract entry kills, entry deaths, refrags, plants, and defuses
         first_kill = None
@@ -219,7 +217,7 @@ def create_csv_from_json(json_file_path):
         logging.info(f"{username} - Most common Attack Operator: {stats['Attack Main']}, Most common Defense Operator: {stats['Defense Main']}")
 
     # Extract HS% from the very last stats section
-    last_stats = data['stats']
+    last_stats = data['rounds'][-1]['stats']
     for stat in last_stats:
         username = stat['username']
         if username in player_stats:

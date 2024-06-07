@@ -9,7 +9,7 @@ RUN pip install --no-cache-dir watchdog flask boto3
 
 # Copy the rest of your application's source code from your host to your filesystem.
 COPY dissect-runner/r6-dissect-runner.py /usr/src/app
-COPY dissect-runner/../r6-dissect /usr/src/app
+COPY dissect-runner/r6-dissect /usr/src/app
 
 # Expose port 5000 for the Flask app
 EXPOSE 5000
