@@ -103,22 +103,41 @@ const App = () => {
         </Dropzone>
         <select value={team} onChange={(e) => setTeam(e.target.value)}>
           <option value="" disabled>{t('pickTeam')}</option>
-          <option value="MYTH">MYTH</option>
-          <option value="RUPTURE">RUPTURE</option>
-          <option value="GO2LIMITS">GO2LIMITS</option>
-          <option value="DAVINCITALENTS">DAVINCITALENTS</option>
-          <option value="INF">INF</option>
-          <option value="LARSISTFALLOBST">LARSISTFALLOBST</option>
-          <option value="NXT">NXT</option>
-          <option value="COFFEIN">COFFEIN</option>
-          <option value="WILDCATS">WILDCATS</option>
-          <option value="SOULSHEART">SOULSHEART</option>
-          <option value="BMB">BMB</option>
-          <option value="FALKE">FALKE</option>
-          <option value="SOKUDO">SOKUDO</option>
-          <option value="STAXCC">STAXCC</option>
-          <option value="ICEFORCEMAIN">ICEFORCEMAIN</option>
-          <option value="BEE">BEE</option>
+          <option value="VOLTAGEGAMING">VOLTAGE GAMING</option>
+          <option value="TEAMAKUAKU">TEAM AKU AKU</option>
+          <option value="OVERLOOKEDENTERTAINMENT">OVERLOOKED ENTERTAINMENT</option>
+          <option value="KHESPORTS">KH ESPORTS</option>
+          <option value="ZINX">ZINX</option>
+          <option value="KUNGFUCOUNCIL">KUNGFUCOUNCIL</option>
+          <option value="UNGUARDABLE">UNGUARDABLE</option>
+          <option value="AXIMZERO">AXIMZERO</option>
+          <option value="REDKNIGHTSONS">REDKNIGHTSONS</option>
+          <option value="MUADDIB5">MUAD'DIB 5</option>
+          <option value="NGGMAIN">NGG MAIN</option>
+          <option value="THEFURIOUSFIVE">THE FURIOUS FIVE</option>
+          <option value="DIVINIUMESPORTS">DIVINIUM ESPORTS</option>
+          <option value="MYSTICGAMING">MYSTIC GAMING</option>
+          <option value="PANNUHUONE">PANNUHUONE</option>
+          <option value="ENVISION ESPORTS">ENVISIONESPORTS</option>
+          <option value="OSPREYORDER">OSPREY ORDER</option>
+          <option value="NORDCO">NORD & CO</option>
+          <option value="RUDYKOSTELECACADEMY">RUDY KOSTELEC ACADEMY</option>
+          <option value="DEADSHOTESPORTS">DEADSHOT ESPORTS</option>
+          <option value="PODEROSATEAMCLAW">PODEROSA TEAM CLAW</option>
+          <option value="NONPROPHETCOMPANY">NON PROPHET COMPANY</option>
+          <option value="UCANESPORTS">UCAN ESPORTS</option>
+          <option value="TEAM5GOATS">TEAM 5GOATS</option>
+          <option value="MELILLATITANS">MELILLA TITANS</option>
+          <option value="GO2LIMITSOG">GO2LIMITS OG</option>
+          <option value="FAKEESPORT">FAKE ESPORT</option>
+          <option value="N8M">N8M</option>
+          <option value="TEAM300">TEAM 300</option>
+          <option value="T3BGLADIATORS">T3B GLADIATORS</option>
+          <option value="BRESTESPORT">BREST ESPORT</option>
+          <option value="QVGESPORTSACADEMY">QVG ESPORTS ACADEMY</option>
+          <option value="OWNEDESPORT">OWNED ESPORT</option>
+          <option value="NIGHTLOKIESPORT">NIGHT LOKI ESPORT</option>
+          <option value="PINGUESPORTS">PINGU ESPORTS</option>
         </select>
         <button onClick={handleUpload}>{t('uploadButton')}</button>
         {isUploading && <p>{t('uploadingTitle')}</p>}
