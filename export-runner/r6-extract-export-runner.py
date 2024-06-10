@@ -51,12 +51,30 @@ def create_csv_from_json(json_file_path):
     
     # Define the CSV headers
     headers = [
-        "Date", "Team", "Players", "Rounds", "Kills", "Deaths", "Entry Kills", "Entry Deaths", 
+        "Team", "Players", "Rounds", "Kills", "Deaths", "Entry Kills", "Entry Deaths", 
         "HS%", "1vX", "Refrags", "Plants", "Defuses", "Attack Main", "Defense Main", "KOST"
     ]
     
-    # Extract date from the first timestamp
-    date = data['rounds'][0]['timestamp'].split('T')[0]
+    # Extract map name
+    map_name = data['rounds'][0]['map']['name']
+    
+    # Extract winner
+    final_round = data['rounds'][-1]
+    winning_team = max(final_round['teams'], key=lambda x: x['score'])['name']
+    
+    # Initialize round-by-round details
+    round_details = [["round", "site", "side", "winner"]]
+    
+    # Extract round details
+    for round_data in data['rounds']:
+        round_number = round_data['roundNumber'] + 1
+        site = round_data['site']
+        for team in round_data['teams']:
+            if team['won']:
+                winner = team['name']
+                side = team['role']
+                round_details.append([round_number, site, side, winner])
+                break
     
     # Extract team names
     teams = data['rounds'][0]['teams']
@@ -105,7 +123,6 @@ def create_csv_from_json(json_file_path):
             
             if username not in player_stats:
                 player_stats[username] = {
-                    "Date": date,
                     "Team": team_name,
                     "Rounds": 0, "Kills": 0, "Deaths": 0, "Entry Kills": 0, "Entry Deaths": 0, 
                     "HS%": 0, "1vX": 0, "Refrags": 0, "Plants": 0, "Defuses": 0, 
@@ -234,7 +251,18 @@ def create_csv_from_json(json_file_path):
             writer.writerow(row)
     
     logging.info(f"CSV file '{csv_file_name}' created successfully.")
+
+    # Append additional information
+    with open(csv_file_name, 'a', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow([])
+        writer.writerow(["Map", "Winner"])
+        writer.writerow([map_name, winning_team])
+        writer.writerow([])
+        writer.writerows(round_details)
+    
     return csv_file_name
+
 
 @app.route('/api/runner', methods=['POST'])
 def runner():

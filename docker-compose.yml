@@ -59,6 +59,7 @@ services:
       dockerfile: Dockerfile-StaffSignupAd
     ports:
       - "5006:5006"
+    user: root
 
   nginx:
     image: nginx:latest
