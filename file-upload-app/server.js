@@ -48,17 +48,12 @@ app.post('/upload', async (req, res) => {
     // Extract the zip file
     fs.createReadStream(uploadPath)
       .pipe(unzipper.Extract({ path: extractedPath }))
-      .on('close', () => {
+      .on('close', async () => {
         console.log(`Extracted zip file to ${extractedPath}`);
-        
-        // List contents of the extracted directory
-        fs.readdir(extractedPath, (err, files) => {
-          if (err) {
-            console.error('Error reading extracted directory:', err);
-            return res.status(500).send('Error reading extracted directory.');
-          }
 
-          console.log('Extracted files:', files);
+        try {
+          // Collect all files recursively
+          const files = await collectRecFiles(extractedPath);
 
           // Check if all files are .rec files
           if (!files.every(file => file.endsWith('.rec'))) {
@@ -67,11 +62,11 @@ app.post('/upload', async (req, res) => {
           }
 
           const folderName = `${team1}-VS-${team2}-${attackingBan1}-${attackingBan2}-${defensiveBan1}-${defensiveBan2}-${playday}-${match}`;
-          const command = `aws s3 cp ${extractedPath} s3://tlmrisserver/pre-exported-data/${folderName}/ --recursive`;
+          const uploadCommand = `aws s3 cp ${extractedPath} s3://tlmrisserver/pre-exported-data/${folderName}/ --recursive --exclude "*" --include "*.rec"`;
 
-          console.log(`Executing command: ${command}`);
+          console.log(`Executing command: ${uploadCommand}`);
 
-          exec(command, (err, stdout, stderr) => {
+          exec(uploadCommand, (err, stdout, stderr) => {
             if (err) {
               console.error('Error uploading files:', err);
               console.error('stdout:', stdout);
@@ -81,7 +76,10 @@ app.post('/upload', async (req, res) => {
             console.log('Files uploaded successfully:', stdout);
             res.send('Files uploaded successfully.');
           });
-        });
+        } catch (err) {
+          console.error('Error processing files:', err);
+          return res.status(500).send('Error processing files.');
+        }
       })
       .on('error', (err) => {
         console.error('Error extracting zip file:', err);
@@ -89,6 +87,25 @@ app.post('/upload', async (req, res) => {
       });
   });
 });
+
+const collectRecFiles = async (dir) => {
+  let results = [];
+  const list = await fs.promises.readdir(dir);
+
+  for (const file of list) {
+    const filePath = path.join(dir, file);
+    const stat = await fs.promises.stat(filePath);
+
+    if (stat && stat.isDirectory()) {
+      const res = await collectRecFiles(filePath);
+      results = results.concat(res);
+    } else {
+      results.push(filePath);
+    }
+  }
+
+  return results;
+};
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));

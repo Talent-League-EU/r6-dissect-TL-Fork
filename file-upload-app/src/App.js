@@ -4,6 +4,8 @@ import i18n from 'i18next';
 import { useTranslation, initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import HttpApi from 'i18next-http-backend';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 
 i18n
@@ -73,6 +75,11 @@ const App = () => {
       return;
     }
 
+    if (team1 === team2) {
+      setError('Teams must be different.');
+      return;
+    }
+
     if (!file) {
       setError('Please upload a file.');
       return;
@@ -80,6 +87,11 @@ const App = () => {
 
     if (!attackingBan1 || !attackingBan2 || !defensiveBan1 || !defensiveBan2 || !playday || !match) {
       setError('Please fill all dropdowns.');
+      return;
+    }
+
+    if (new Set([attackingBan1, attackingBan2, defensiveBan1, defensiveBan2]).size !== 4) {
+      setError('Bans must be unique.');
       return;
     }
 
@@ -108,6 +120,7 @@ const App = () => {
 
       const result = await response.text();
       console.log(result);
+      toast.success('File uploaded successfully!');
     } catch (error) {
       setError('Error uploading files.');
       console.error(error);
@@ -122,6 +135,7 @@ const App = () => {
 
   return (
     <div className="App">
+      <ToastContainer />
       <video autoPlay loop muted className="background-video">
         <source src="/background.mp4" type="video/mp4" />
         Your browser does not support the video tag.

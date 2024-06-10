@@ -1,11 +1,11 @@
 {
-    "title": "Datei-Upload",
-    "uploadTitle": "Spielwiederholung hochladen",
-    "instructions": "1. Öffnen Sie den Ordner der Spielwiederholung.\n2. Betreten Sie den Ordner des hochzuladenden Spiels.\n3. Wählen Sie alle Dateien aus.\n4. Verwenden Sie 7zip oder Ihre bevorzugte Software,\n um die Dateien in eine Zip-Datei zu komprimieren.\n5. Benennen Sie die Datei um:\n 'IHRTEAMNAME-gegen-GEGNERTEAMNAME-(welcher Spieltag auch immer).zip'\n wenn Sie mehrere Spiele haben (bo3, bo5), dann fügen Sie\n '-SPIEL-(die Spielnummer)' nach dem Namen des Gegnerteams hinzu.\n6. Laden Sie die Datei hoch.\n7. Wählen Sie Ihren Teamnamen aus.\n8. Drücken Sie den Upload-Knopf.\n9. Warten Sie auf die Bestätigung des Uploads.\n10. Sie können Ihren Browser schließen.\nWICHTIG! WENN ES EINEN REHOST GAB, MÜSSEN SIE IHRE REPLAY-ORDNER KOMBINIEREN.\n NEHMEN SIE ALLE GESPIELTEN RUNDEN AUS DEM REPLAY-ORDNER VOR DEM REHOST UND ALLE\n GESPIELTEN RUNDEN AUS DEM ORDNER NACH DEM REHOST\n UND LEGEN SIE ALLES IN EINEN ORDNER, BEVOR SIE ES ZIPEN.\n FAHREN SIE DANN MIT SCHRITT 5 FORT.\n Es ist äußerst wichtig, dies richtig zu machen.\n Wenn dies nicht korrekt ausgeführt wird,\n könnte dies zu falschen Statistiken für \nIhr Team oder einem falschen Endergebnis für dieses Spiel führen.\n Wenn Sie Unterstützung benötigen,\n öffnen Sie bitte ein Support-Ticket in unserem Discord!",
-    "uploadButton": "Hochladen",
-    "uploadingTitle": "Wird hochgeladen...",
-    "waitMessage": "Bitte warten Sie, während Ihre Dateien hochgeladen werden.",
-    "discordLink": "Treten Sie unserem Discord bei",
-    "dragDrop": "Dateien hierher ziehen oder klicken, um Dateien auszuwählen",
-    "pickTeam": "Wählen Sie ein Team"
-  }
+  "title": "Datei-Upload",
+  "uploadTitle": "Match-Wiederholung hochladen",
+  "instructions": "1. Öffnen Sie den Ordner mit der Match-Wiederholung.\n2. Gehen Sie in den Ordner des Matches, das Sie hochladen möchten.\n3. Wählen Sie alle Dateien aus.\n4. Verwenden Sie 7zip oder Ihre bevorzugte Software, um die Dateien in eine Zip-Datei zu komprimieren.\n5. Legen Sie die Teamnamen, die Angreifer- und Verteidiger-Verbote, den Spieltag und die Matchnummer fest.\n6. Laden Sie die Datei hoch.\n7. Warten Sie auf die Upload-Bestätigung.\n8. Sie können Ihren Browser schließen.\nWICHTIG! WENN SIE EIN REHOST HATTEN, MÜSSEN SIE IHRE WIEDERHOLUNGSORDNER KOMBINIEREN.\n NEHMEN SIE ALLE GESPIELTEN RUNDEN AUS DEM WIEDERHOLUNGSORDNER VOR DEM REHOST,\n UND ALLE GESPIELTEN RUNDEN AUS DEM ORDNER NACH DEM REHOST\n UND LEGEN SIE ALLE IN EINEN ORDNER, BEVOR SIE SIE ZIPEN. DANN FAHREN SIE MIT SCHRITT 5 FORT.\n Es ist EXTREM WICHTIG, dass Sie dies korrekt machen.\n Wenn Sie dies nicht korrekt machen, könnten falsche Statistiken für Ihr Team\n oder ein falsches Endergebnis für dieses Match entstehen.\n Wenn Sie Hilfe benötigen, öffnen Sie bitte ein Support-Ticket in unserem Discord!",
+  "uploadButton": "Hochladen",
+  "uploadingTitle": "Hochladen...",
+  "waitMessage": "Bitte warten Sie, während Ihre Dateien hochgeladen werden.",
+  "discordLink": "Treten Sie unserem Discord bei",
+  "dragDrop": "Ziehen Sie Dateien hierher oder klicken Sie, um Dateien auszuwählen",
+  "pickTeam": "Wählen Sie ein Team"
+}
