@@ -56,7 +56,6 @@ services:
   tlssa:
     build:
       context: ../TLSSA
-      dockerfile: Dockerfile-StaffSignupAd
     ports:
       - "5006:5006"
     user: root
