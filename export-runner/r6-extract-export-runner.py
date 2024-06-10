@@ -63,18 +63,14 @@ def create_csv_from_json(json_file_path):
     winning_team = max(final_round['teams'], key=lambda x: x['score'])['name']
     
     # Initialize round-by-round details
-    round_details = [["round", "site", "side", "winner"]]
+    round_details = [["round", "site", "defensive_team"]]
     
     # Extract round details
     for round_data in data['rounds']:
         round_number = round_data['roundNumber'] + 1
         site = round_data['site']
-        for team in round_data['teams']:
-            if team['won']:
-                winner = team['name']
-                side = team['role']
-                round_details.append([round_number, site, side, winner])
-                break
+        defensive_team = next(team['name'] for team in round_data['teams'] if team['role'] == 'Defense')
+        round_details.append([round_number, site, defensive_team])
     
     # Extract team names
     teams = data['rounds'][0]['teams']
@@ -262,6 +258,7 @@ def create_csv_from_json(json_file_path):
         writer.writerows(round_details)
     
     return csv_file_name
+
 
 
 @app.route('/api/runner', methods=['POST'])

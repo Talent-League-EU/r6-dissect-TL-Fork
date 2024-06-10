@@ -17,6 +17,10 @@ app.post('/upload', async (req, res) => {
     return res.status(400).send('No files were uploaded.');
   }
 
+  const {
+    team1, team2, attackingBan1, attackingBan2, defensiveBan1, defensiveBan2, playday, match
+  } = req.body;
+
   const zipFile = req.files.file;
   const uploadPath = path.join(__dirname, 'uploads', zipFile.name);
   const extractedPath = path.join(__dirname, 'uploads', zipFile.name.split('.zip')[0]);
@@ -62,7 +66,7 @@ app.post('/upload', async (req, res) => {
             return res.status(400).send('All files inside the zip must be .rec files.');
           }
 
-          const folderName = `${zipFile.name.split('.zip')[0]}-${req.body.team}`;
+          const folderName = `${team1}-VS-${team2}-${attackingBan1}-${attackingBan2}-${defensiveBan1}-${defensiveBan2}-${playday}-${match}`;
           const command = `aws s3 cp ${extractedPath} s3://tlmrisserver/pre-exported-data/${folderName}/ --recursive`;
 
           console.log(`Executing command: ${command}`);
