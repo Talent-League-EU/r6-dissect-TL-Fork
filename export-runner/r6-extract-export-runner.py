@@ -90,7 +90,7 @@ def create_csv_from_json(json_file_path):
         "Smoke", "Mute", "Castle", "Pulse", "Doc", "Rook", "Jager", "Bandit",
         "Frost", "Valkyrie", "Caveira", "Echo", "Mira", "Lesion", "Ela", "Vigil",
         "Maestro", "Alibi", "Clash", "Kaid", "Mozzie", "Warden", "Goyo", "Wamai",
-        "Oryx", "Melusi", "Aruni", "Thunderbird", "Thorn", "Azami", "Solace"
+        "Oryx", "Melusi", "Aruni", "Thunderbird", "Thorn", "Azami", "Solis"
     ]
 
     # Extract players data
