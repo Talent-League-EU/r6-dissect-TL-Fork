@@ -124,19 +124,20 @@ app.post('/upload-moss', (req, res) => {
         }
 
         req.files.forEach(file => {
-            const params = {
-                Bucket: 'tlmrisserver',
-                Key: `MOSS Files/${Date.now()}_${file.originalname}`, // Ensure unique file name
-                Body: file.buffer,
-                ContentType: 'application/zip'
-            };
+            const localFilePath = `/tmp/${Date.now()}_${file.originalname}`;
+            fs.writeFileSync(localFilePath, file.buffer);
 
-            s3.upload(params, function(s3Err, data) {
-                if (s3Err) {
-                    console.error(`Error uploading file: ${file.originalname}`, s3Err);
+            const s3UploadCommand = `aws s3 cp ${localFilePath} s3://tlmrisserver/MOSS Files/${Date.now()}_${file.originalname}`;
+
+            exec(s3UploadCommand, (err, stdout, stderr) => {
+                if (err) {
+                    console.error(`Error uploading file: ${file.originalname}`, err);
+                    console.error('stdout:', stdout);
+                    console.error('stderr:', stderr);
                     return res.status(500).send('Error uploading files.');
                 }
-                console.log(`File uploaded successfully at ${data.Location}`);
+                console.log(`File uploaded successfully: ${stdout}`);
+                fs.unlinkSync(localFilePath); // Clean up the local file
             });
         });
 
