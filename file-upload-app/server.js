@@ -1,7 +1,7 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const multer = require('multer');
-const aws = require('aws-sdk');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
@@ -11,12 +11,13 @@ const app = express();
 const PORT = 5001;
 
 // AWS S3 Configuration
-aws.config.update({
-    secretAccessKey: 'YOUR_SECRET_ACCESS_KEY',
-    accessKeyId: 'YOUR_ACCESS_KEY_ID',
-    region: 'YOUR_REGION'
+const s3Client = new S3Client({
+    region: 'YOUR_REGION',
+    credentials: {
+        accessKeyId: 'YOUR_ACCESS_KEY_ID',
+        secretAccessKey: 'YOUR_SECRET_ACCESS_KEY'
+    }
 });
-const s3 = new aws.S3();
 
 // Using express-fileupload for existing functionality
 app.use(fileUpload());
@@ -117,13 +118,13 @@ app.post('/upload', async (req, res) => {
 app.post('/upload-moss', (req, res) => {
     upload(req, res, function (error) {
         if (error) {
-            return res.status(500).json({error: error.message});
+            return res.status(500).json({ error: error.message });
         }
         if (!req.files || req.files.length === 0) {
             return res.status(400).send('No files were uploaded.');
         }
 
-        req.files.forEach(file => {
+        req.files.forEach(async file => {
             const localFilePath = `/tmp/${Date.now()}_${file.originalname}`;
             fs.writeFileSync(localFilePath, file.buffer);
 
