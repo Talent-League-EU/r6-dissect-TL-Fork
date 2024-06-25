@@ -14,6 +14,7 @@ def runner():
     bucket_name = 'tlmrisserver'
     pre_exported_prefix = 'pre-exported-data/'
     intermediate_prefix = 'intermediate-data/'
+    final_destination_prefix = 'LTS/Match Replays/'
     pre_exported_download_path = './data/pre-exported-data/'
     intermediate_download_path = './data/intermediate-data/'
 
@@ -54,8 +55,20 @@ def runner():
             # Upload the JSON file to S3
             s3_client.upload_file(output_path, bucket_name, f"{intermediate_prefix}{folder}.json")
 
+            # Move the original files to LTS/Match Replays and set Glacier Instant Retrieval storage class
+            for content in folder_contents.get('Contents', []):
+                original_key = content['Key']
+                new_key = original_key.replace(pre_exported_prefix, final_destination_prefix)
+                copy_source = {
+                    'Bucket': bucket_name,
+                    'Key': original_key
+                }
+                s3_client.copy_object(CopySource=copy_source, Bucket=bucket_name, Key=new_key, StorageClass='GLACIER_INSTANT_RETRIEVAL')
+                s3_client.delete_object(Bucket=bucket_name, Key=original_key)
+
             # Delete local copies of the folder and files
             shutil.rmtree(input_path)  # Remove the entire folder in pre-exported-data
+            
             os.remove(output_path)  # Remove the generated JSON file in intermediate-data
 
         return jsonify({"processed_folders": unmatched_folders}), 200
