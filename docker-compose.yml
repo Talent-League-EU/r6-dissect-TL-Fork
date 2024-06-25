@@ -65,4 +65,3 @@ services:
       - sheets-export
       - file-upload-app
       - admin-portal
-      - tlssa
