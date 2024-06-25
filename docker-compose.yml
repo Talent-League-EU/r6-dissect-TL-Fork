@@ -53,13 +53,6 @@ services:
         - "5001:5001"
     user: root
 
-  tlssa:
-    build:
-      context: ../TLSSA
-    ports:
-      - "5006:5006"
-    user: root
-
   nginx:
     image: nginx:latest
     ports:
