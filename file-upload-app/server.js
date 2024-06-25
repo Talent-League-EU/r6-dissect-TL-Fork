@@ -10,15 +10,6 @@ const unzipper = require('unzipper');
 const app = express();
 const PORT = 5001;
 
-// AWS S3 Configuration
-const s3Client = new S3Client({
-    region: 'YOUR_REGION',
-    credentials: {
-        accessKeyId: 'YOUR_ACCESS_KEY_ID',
-        secretAccessKey: 'YOUR_SECRET_ACCESS_KEY'
-    }
-});
-
 // Using express-fileupload for existing functionality
 app.use(fileUpload());
 app.use(express.static(path.join(__dirname, 'build')));
