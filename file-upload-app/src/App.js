@@ -147,7 +147,7 @@ const App = () => {
     mossFiles.forEach(file => {
       formData.append('files', file);
     });
-
+  
     setIsUploading(true);
     try {
       const response = await fetch('/upload-moss', {
@@ -164,7 +164,7 @@ const App = () => {
     }
     setIsUploading(false);
   };
-
+  
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
   };

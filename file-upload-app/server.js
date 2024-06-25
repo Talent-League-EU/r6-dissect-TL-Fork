@@ -1,7 +1,6 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const multer = require('multer');
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
@@ -27,8 +26,10 @@ const upload = multer({
     }
 }).array('files', 5); // Accept up to 5 files
 
-// Route for uploading replay files
+console.log("Server configuration complete");
+
 app.post('/upload', async (req, res) => {
+    console.log("Upload endpoint hit");
     if (!req.files || !req.files.file) {
         console.error('No files were uploaded.');
         return res.status(400).send('No files were uploaded.');
@@ -42,7 +43,6 @@ app.post('/upload', async (req, res) => {
     const uploadPath = path.join(__dirname, 'uploads', zipFile.name);
     const extractedPath = path.join(__dirname, 'uploads', zipFile.name.split('.zip')[0]);
 
-    // Ensure the uploads directory exists
     if (!fs.existsSync(path.join(__dirname, 'uploads'))) {
         fs.mkdirSync(path.join(__dirname, 'uploads'));
     }
@@ -62,17 +62,14 @@ app.post('/upload', async (req, res) => {
 
         console.log(`File saved to ${uploadPath}`);
 
-        // Extract the zip file
         fs.createReadStream(uploadPath)
             .pipe(unzipper.Extract({ path: extractedPath }))
             .on('close', async () => {
                 console.log(`Extracted zip file to ${extractedPath}`);
 
                 try {
-                    // Collect all files recursively
                     const files = await collectRecFiles(extractedPath);
 
-                    // Check if all files are .rec files
                     if (!files.every(file => file.endsWith('.rec'))) {
                         console.error('All files inside the zip must be .rec files.');
                         return res.status(400).send('All files inside the zip must be .rec files.');
@@ -105,21 +102,24 @@ app.post('/upload', async (req, res) => {
     });
 });
 
-// New route for MOSS files upload
 app.post('/upload-moss', (req, res) => {
+    console.log("MOSS upload endpoint hit");
     upload(req, res, function (error) {
         if (error) {
+            console.error("Multer error:", error);
             return res.status(500).json({ error: error.message });
         }
         if (!req.files || req.files.length === 0) {
+            console.error("No files were uploaded.");
             return res.status(400).send('No files were uploaded.');
         }
 
-        req.files.forEach(async file => {
+        req.files.forEach(file => {
             const localFilePath = `/tmp/${Date.now()}_${file.originalname}`;
             fs.writeFileSync(localFilePath, file.buffer);
 
             const s3UploadCommand = `aws s3 cp ${localFilePath} s3://tlmrisserver/MOSS Files/${Date.now()}_${file.originalname}`;
+            console.log(`Executing command: ${s3UploadCommand}`);
 
             exec(s3UploadCommand, (err, stdout, stderr) => {
                 if (err) {
