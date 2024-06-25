@@ -49,6 +49,7 @@ const App = () => {
   const [team1, setTeam1] = useState('');
   const [team2, setTeam2] = useState('');
   const [file, setFile] = useState(null);
+  const [mossFiles, setMossFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState(null);
   const [attackingBan1, setAttackingBan1] = useState('');
@@ -67,6 +68,14 @@ const App = () => {
     }
 
     setFile(acceptedFiles[0]);
+  };
+
+  const handleMossDrop = (acceptedFiles) => {
+    const zipFiles = acceptedFiles.filter(file => file.name.endsWith('.zip'));
+    setMossFiles(zipFiles);
+    if (zipFiles.length !== acceptedFiles.length) {
+      toast.error(t('onlyZipAllowed'));
+    }
   };
 
   const handleUpload = async () => {
@@ -126,6 +135,33 @@ const App = () => {
       console.error(error);
     }
 
+    setIsUploading(false);
+  };
+
+  const uploadMossFiles = async () => {
+    if (mossFiles.length === 0) {
+      toast.error(t('noFilesSelected'));
+      return;
+    }
+    const formData = new FormData();
+    mossFiles.forEach(file => {
+      formData.append('files', file);
+    });
+
+    setIsUploading(true);
+    try {
+      const response = await fetch('/upload-moss', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error('MOSS Upload failed');
+      }
+      toast.success('MOSS files uploaded successfully!');
+    } catch (error) {
+      toast.error('Error uploading MOSS files.');
+      console.error(error);
+    }
     setIsUploading(false);
   };
 
@@ -237,13 +273,27 @@ const App = () => {
         <button onClick={handleUpload}>{t('uploadButton')}</button>
         {isUploading && <p>{t('uploadingTitle')}</p>}
         {error && <p className="error">{error}</p>}
+
+        <h2>{t('upload MOSS Files')}</h2>
+        <Dropzone onDrop={handleMossDrop} accept=".zip" multiple>
+          {({ getRootProps, getInputProps }) => (
+            <div {...getRootProps({ className: 'dropzone' })}>
+              <input {...getInputProps()} />
+              <p>{mossFiles.length > 0 ? mossFiles.map(file => file.name).join(', ') : t('Drag and Drop MOSS')}</p>
+            </div>
+          )}
+        </Dropzone>
+        <button onClick={uploadMossFiles} disabled={isUploading || mossFiles.length === 0}>
+          {isUploading ? t('uploadingMOSS') : t('uploadMOSSButton')}
+        </button>
+
         <div className="language-switcher">
           <button onClick={() => changeLanguage('en')}>English</button>
           <button onClick={() => changeLanguage('fr')}>French</button>
           <button onClick={() => changeLanguage('de')}>German</button>
         </div>
         <div className="discord-link">
-          <a href="https://discord.com" target="_blank" rel="noopener noreferrer">
+          <a href="https://discord.gg/hqSzN8nVqN" target="_blank" rel="noopener noreferrer">
             {t('discordLink')}
           </a>
         </div>
