@@ -28,6 +28,11 @@ const upload = multer({
 
 console.log("Server configuration complete");
 
+const path = require('path');
+const fs = require('fs');
+const unzipper = require('unzipper');
+const { exec } = require('child_process');
+
 app.post('/upload', async (req, res) => {
     console.log("Upload endpoint hit");
     if (!req.files || !req.files.file) {
@@ -76,7 +81,11 @@ app.post('/upload', async (req, res) => {
                     }
 
                     const folderName = `${team1}-VS-${team2}-${attackingBan1}-${attackingBan2}-${defensiveBan1}-${defensiveBan2}-${playday}-${match}`;
-                    const uploadCommand = `aws s3 cp ${extractedPath} s3://tlmrisserver/pre-exported-data/${folderName}/ --recursive --exclude "*" --include "*.rec"`;
+                    const newFolderPath = path.join(__dirname, 'uploads', folderName);
+
+                    fs.renameSync(extractedPath, newFolderPath);
+
+                    const uploadCommand = `aws s3 cp ${newFolderPath} s3://tlmrisserver/pre-exported-data/${folderName}/ --recursive --exclude "*" --include "*.rec"`;
 
                     console.log(`Executing command: ${uploadCommand}`);
 
@@ -101,6 +110,7 @@ app.post('/upload', async (req, res) => {
             });
     });
 });
+
 
 app.post('/upload-moss', (req, res) => {
     console.log("MOSS upload endpoint hit");
