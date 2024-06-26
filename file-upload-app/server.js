@@ -28,11 +28,6 @@ const upload = multer({
 
 console.log("Server configuration complete");
 
-const path = require('path');
-const fs = require('fs');
-const unzipper = require('unzipper');
-const { exec } = require('child_process');
-
 app.post('/upload', async (req, res) => {
     console.log("Upload endpoint hit");
     if (!req.files || !req.files.file) {
