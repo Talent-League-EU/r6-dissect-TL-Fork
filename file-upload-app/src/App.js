@@ -27,18 +27,18 @@ i18n
   });
 
 const attackingOperators = [
-  "Sledge", "Thatcher", "Ash", "Thermite", "Twitch", "Montagne", "Glaz",
-  "Fuze", "Blitz", "IQ", "Buck", "Blackbeard", "Capitao", "Hibana", "Jackal",
-  "Ying", "Zofia", "Dokkaebi", "Lion", "Finka", "Maverick", "Nomad", "Gridlock",
-  "Nokk", "Amaru", "Kali", "Iana", "Ace", "Zero", "Flores", "Osa", "Sens", "Grim",
-  "Brava", "Ram", "Deimos"
+  "Ace", "Amaru", "Ash", "Blackbeard", "Brava", "Buck", "Capitão", "Deimos", 
+  "Dokkaebi", "Finka", "Flores", "Fuze", "Glaz", "Gridlock", "Grim", "Hibana", 
+  "Iana", "IQ", "Jackal", "Kali", "Lion", "Maverick", "Montagne", "Nøkk", "Nomad", 
+  "Osa", "Ram", "Sledge", "Sens", "Striker", "Thatcher", "Thermite", "Twitch", "Ying", 
+  "Zero", "Zofia"
 ];
 
 const defensiveOperators = [
-  "Smoke", "Mute", "Castle", "Pulse", "Doc", "Rook", "Jager", "Bandit",
-  "Frost", "Valkyrie", "Caveira", "Echo", "Mira", "Lesion", "Ela", "Vigil",
-  "Maestro", "Alibi", "Clash", "Kaid", "Mozzie", "Warden", "Goyo", "Wamai",
-  "Oryx", "Melusi", "Aruni", "Thunderbird", "Thorn", "Azami", "Solace"
+  "Alibi", "Aruni", "Azami", "Bandit", "Caveira", "Clash", "Doc", "Echo", "Ela", "Fenrir", 
+  "Frost", "Goyo", "Jäger", "Kaid", "Kapkan", "Lesion", "Maestro", "Melusi", "Mira", "Mozzie", 
+  "Mute", "Oryx", "Pulse", "Rook", "Sentry", "Smoke", "Solis", "Tachanka", "Thorn", "Thunderbird", 
+  "Valkyrie", "Vigil", "Wamai", "Warden"
 ];
 
 const playdays = Array.from({ length: 9 }, (_, i) => i + 1);
