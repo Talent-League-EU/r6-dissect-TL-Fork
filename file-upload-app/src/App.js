@@ -99,7 +99,8 @@ const App = () => {
       return;
     }
 
-    if (new Set([attackingBan1, attackingBan2, defensiveBan1, defensiveBan2]).size !== 4) {
+    const uniqueBans = new Set([attackingBan1, attackingBan2, defensiveBan1, defensiveBan2].filter(ban => ban !== 'NoBan'));
+    if (uniqueBans.size !== 4 - [attackingBan1, attackingBan2, defensiveBan1, defensiveBan2].filter(ban => ban === 'NoBan').length) {
       setError('Bans must be unique.');
       return;
     }
