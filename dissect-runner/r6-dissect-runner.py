@@ -63,7 +63,7 @@ def runner():
                     'Bucket': bucket_name,
                     'Key': original_key
                 }
-                s3_client.copy_object(CopySource=copy_source, Bucket=bucket_name, Key=new_key, StorageClass='GLACIER_INSTANT_RETRIEVAL')
+                s3_client.copy_object(CopySource=copy_source, Bucket=bucket_name, Key=new_key, StorageClass='GLACIER_IR')
                 s3_client.delete_object(Bucket=bucket_name, Key=original_key)
 
             # Delete local copies of the folder and files
