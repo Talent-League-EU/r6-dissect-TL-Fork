@@ -14,7 +14,7 @@ def runner():
     bucket_name = 'tlmrisserver'
     pre_exported_prefix = 'pre-exported-data/'
     intermediate_prefix = 'intermediate-data/'
-    final_destination_prefix = 'LTS/Match Replays/'
+    final_destination_prefix = 'LTS/Match_Replays/'
     pre_exported_download_path = './data/pre-exported-data/'
     intermediate_download_path = './data/intermediate-data/'
 

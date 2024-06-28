@@ -17,8 +17,8 @@ app.use(express.static(path.join(__dirname, 'build')));
 const multerStorage = multer.memoryStorage();
 const upload = multer({
     storage: multerStorage,
-    limits: { fileSize: 50 * 1024 * 1024 }, // Limit size to 50MB per file
-    fileFilter: function (req, file, cb) {
+    limits: { fileSize: 500 * 1024 * 1024 }, // Limit size to 50MB per file
+    fileFilter: (req, file, cb) => {
         if (path.extname(file.originalname) !== '.zip') {
             return cb(new Error('Only zip files are allowed'), false);
         }
@@ -35,10 +35,7 @@ app.post('/upload', async (req, res) => {
         return res.status(400).send('No files were uploaded.');
     }
 
-    const {
-        team1, team2, attackingBan1, attackingBan2, defensiveBan1, defensiveBan2, playday, match
-    } = req.body;
-
+    const { team1, team2, attackingBan1, attackingBan2, defensiveBan1, defensiveBan2, playday, match } = req.body;
     const zipFile = req.files.file;
     const uploadPath = path.join(__dirname, 'uploads', zipFile.name);
     const extractedPath = path.join(__dirname, 'uploads', zipFile.name.split('.zip')[0]);
@@ -78,7 +75,14 @@ app.post('/upload', async (req, res) => {
                     const folderName = `${team1}-VS-${team2}-${attackingBan1}-${attackingBan2}-${defensiveBan1}-${defensiveBan2}-${playday}-${match}`;
                     const newFolderPath = path.join(__dirname, 'uploads', folderName);
 
-                    fs.renameSync(extractedPath, newFolderPath);
+                    if (!fs.existsSync(newFolderPath)) {
+                        fs.mkdirSync(newFolderPath);
+                    }
+
+                    files.forEach(file => {
+                        const fileName = path.basename(file);
+                        fs.renameSync(file, path.join(newFolderPath, fileName));
+                    });
 
                     const uploadCommand = `aws s3 cp ${newFolderPath} s3://tlmrisserver/pre-exported-data/${folderName}/ --recursive --exclude "*" --include "*.rec"`;
 
@@ -106,6 +110,14 @@ app.post('/upload', async (req, res) => {
     });
 });
 
+async function collectRecFiles(dir) {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    const files = entries.flatMap(entry => {
+        const fullPath = path.join(dir, entry.name);
+        return entry.isDirectory() ? collectRecFiles(fullPath) : [fullPath];
+    });
+    return files.filter(file => file.endsWith('.rec'));
+}
 
 app.post('/upload-moss', (req, res) => {
     console.log("MOSS upload endpoint hit");
@@ -141,25 +153,6 @@ app.post('/upload-moss', (req, res) => {
         res.send('Files uploaded successfully!');
     });
 });
-
-const collectRecFiles = async (dir) => {
-    let results = [];
-    const list = await fs.promises.readdir(dir);
-
-    for (const file of list) {
-        const filePath = path.join(dir, file);
-        const stat = await fs.promises.stat(filePath);
-
-        if (stat && stat.isDirectory()) {
-            const res = await collectRecFiles(filePath);
-            results = results.concat(res);
-        } else {
-            results.push(filePath);
-        }
-    }
-
-    return results;
-};
 
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'build', 'index.html'));

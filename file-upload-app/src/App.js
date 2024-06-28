@@ -38,7 +38,7 @@ const defensiveOperators = [
   "Alibi", "Aruni", "Azami", "Bandit", "Caveira", "Clash", "Doc", "Echo", "Ela", "Fenrir", 
   "Frost", "Goyo", "Jäger", "Kaid", "Kapkan", "Lesion", "Maestro", "Melusi", "Mira", "Mozzie", 
   "Mute", "Oryx", "Pulse", "Rook", "Sentry", "Smoke", "Solis", "Tachanka", "Thorn", "Thunderbird", 
-  "Valkyrie", "Vigil", "Wamai", "Warden", "NoBan"
+  "Tubarao","Valkyrie", "Vigil", "Wamai", "Warden", "NoBan"
 ];
 
 const playdays = Array.from({ length: 9 }, (_, i) => i + 1);
