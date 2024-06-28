@@ -27,7 +27,7 @@ i18n
   });
 
 const attackingOperators = [
-  "Ace", "Amaru", "Ash", "Blackbeard", "Brava", "Buck", "Capitão", "Deimos", 
+  "Ace", "Amaru", "Ash", "Blackbeard", "Brava", "Buck", "Blitz", "Capitão", "Deimos", 
   "Dokkaebi", "Finka", "Flores", "Fuze", "Glaz", "Gridlock", "Grim", "Hibana", 
   "Iana", "IQ", "Jackal", "Kali", "Lion", "Maverick", "Montagne", "Nøkk", "Nomad", 
   "Osa", "Ram", "Sledge", "Sens", "Striker", "Thatcher", "Thermite", "Twitch", "Ying", 
@@ -35,7 +35,7 @@ const attackingOperators = [
 ];
 
 const defensiveOperators = [
-  "Alibi", "Aruni", "Azami", "Bandit", "Caveira", "Clash", "Doc", "Echo", "Ela", "Fenrir", 
+  "Alibi", "Aruni", "Azami", "Bandit", "Caveira", "Clash", "Castle", "Doc", "Echo", "Ela", "Fenrir", 
   "Frost", "Goyo", "Jäger", "Kaid", "Kapkan", "Lesion", "Maestro", "Melusi", "Mira", "Mozzie", 
   "Mute", "Oryx", "Pulse", "Rook", "Sentry", "Smoke", "Solis", "Tachanka", "Thorn", "Thunderbird", 
   "Tubarao","Valkyrie", "Vigil", "Wamai", "Warden", "NoBan"
