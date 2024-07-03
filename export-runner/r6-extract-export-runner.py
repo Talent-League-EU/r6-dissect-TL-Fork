@@ -1,3 +1,4 @@
+import argparse
 import json
 import csv
 import logging
@@ -230,7 +231,7 @@ def create_csv_from_json(json_file_path):
         logging.info(f"{username} - Most common Attack Operator: {stats['Attack Main']}, Most common Defense Operator: {stats['Defense Main']}")
 
     # Extract HS% from the very last stats section
-    last_stats = data['rounds'][-1]['stats']
+    last_stats = data['stats']
     for stat in last_stats:
         username = stat['username']
         if username in player_stats:
@@ -322,4 +323,12 @@ def list_s3_files(bucket):
     return [line.split()[-1] for line in result.stdout.split('\n') if line.strip()]
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5002)
+    parser = argparse.ArgumentParser(description='Run the Flask app or process a JSON file in debug mode.')
+    parser.add_argument('--debug', type=str, help='Run in debug mode with the specified JSON file path.')
+    args = parser.parse_args()
+
+    if args.debug:
+        print(f"Running in debug mode with file: {args.debug}")
+        create_csv_from_json(args.debug)
+    else:
+        app.run(host='0.0.0.0', port=5002)
