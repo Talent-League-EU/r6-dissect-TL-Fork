@@ -196,6 +196,7 @@ const App = () => {
           <option value="COF">COFFEIN ESPORTS</option>
           <option value="DVT">DAVINCI ESPORTS TALENTS</option>
           <option value="FAL">FALKE ESPORTS</option>
+          <option value="T5G">FIVE STAR</option>
           <option value="G2L">GO2LIMITS ESPORTS</option>
           <option value="INF">INF ESPORTS</option>
           <option value="LSF">LARSISTFALLOBST</option>
@@ -204,11 +205,10 @@ const App = () => {
           <option value="OWN">OWNED ESPORTS</option>
           <option value="PAN">PANNUHUONE</option>
           <option value="PNG">PINGU ESPORTS</option>
+          <option value="PTC">PODEROSA TEAM CLAW</option>
           <option value="SHE">SOULS HEART ESPORTS</option>
           <option value="SOK">SOKUDO ESPORTS</option>
-          <option value="STX">STAXS COPPER CLAN</option>
           <option value="TRP">TEAM RUPTURE</option>
-          <option value="T5G">TEAM 5GOATS</option>
           <option value="WLD">WILDCATS ESPORTS</option>
           <option value="ICE">ICE FORCE ESPORTS</option>
         </select>
