@@ -75,8 +75,4 @@ services:
       - sheets-export
       - file-upload-app
       - admin-portal
-<<<<<<< HEAD
       - health-check
-=======
-      - health-check
->>>>>>> 790004e (added spot instance usage to reduce costs)
