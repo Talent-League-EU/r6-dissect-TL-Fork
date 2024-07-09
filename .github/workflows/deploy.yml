@@ -24,20 +24,20 @@ jobs:
       id: get_instance_id
       run: |
         INSTANCE_ID=$(aws autoscaling describe-auto-scaling-instances --query 'AutoScalingInstances[?AutoScalingGroupName==`MySpotFleetASG`].InstanceId' --output text)
-        echo "::set-output name=instance_id::$INSTANCE_ID"
+        echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
 
     - name: Get Instance Public IP
       id: get_instance_ip
       run: |
-        INSTANCE_IP=$(aws ec2 describe-instances --instance-ids ${{ steps.get_instance_id.outputs.instance_id }} --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
-        echo "::set-output name=instance_ip::$INSTANCE_IP"
+        INSTANCE_IP=$(aws ec2 describe-instances --instance-ids ${{ env.INSTANCE_ID }} --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
+        echo "INSTANCE_IP=$INSTANCE_IP" >> $GITHUB_ENV
 
     - name: Set up SSH key
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ steps.get_instance_ip.outputs.instance_ip }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.INSTANCE_IP }} >> ~/.ssh/known_hosts
 
     - name: Replace placeholders with double quotes and create JSON file
       run: |
@@ -50,37 +50,37 @@ jobs:
 
     - name: Transfer the base64 encoded JSON to EC2
       run: |
-        scp service-account-file.json.base64 ec2-user@${{ steps.get_instance_ip.outputs.instance_ip }}:/home/ec2-user/service-account-file.json.base64
+        scp service-account-file.json.base64 ec2-user@${{ env.INSTANCE_IP }}:/home/ec2-user/service-account-file.json.base64
 
     - name: Decode the base64 JSON on EC2
       run: |
-        ssh ec2-user@${{ steps.get_instance_ip.outputs.instance_ip }} "base64 -d /home/ec2-user/service-account-file.json.base64 > /home/ec2-user/service-account-file.json"
-        ssh ec2-user@${{ steps.get_instance_ip.outputs.instance_ip }} "cat /home/ec2-user/service-account-file.json" # Verify the decoded JSON content
+        ssh ec2-user@${{ env.INSTANCE_IP }} "base64 -d /home/ec2-user/service-account-file.json.base64 > /home/ec2-user/service-account-file.json"
+        ssh ec2-user@${{ env.INSTANCE_IP }} "cat /home/ec2-user/service-account-file.json" # Verify the decoded JSON content
 
     - name: Deploy to EC2
       run: |
-        ssh ec2-user@${{ steps.get_instance_ip.outputs.instance_ip }} "mkdir -p /home/ec2-user/r6-dissect-TL-Fork"
-        rsync -avz --exclude '.git' --exclude 'node_modules' ./ ec2-user@${{ steps.get_instance_ip.outputs.instance_ip }}:/home/ec2-user/r6-dissect-TL-Fork
-        ssh ec2-user@${{ steps.get_instance_ip.outputs.instance_ip }} "sudo mkdir -p /etc/TLMRIS && cd /etc/TLMRIS && sudo find . -maxdepth 1 ! -name 'data' ! -name '.' -exec rm -rf {} +"
-        ssh ec2-user@${{ steps.get_instance_ip.outputs.instance_ip }} "sudo mv /home/ec2-user/r6-dissect-TL-Fork/* /etc/TLMRIS"
-        ssh ec2-user@${{ steps.get_instance_ip.outputs.instance_ip }} "sudo mv /home/ec2-user/service-account-file.json /etc/TLMRIS/sheets-export-runner/service-account-file.json"
-        ssh ec2-user@${{ steps.get_instance_ip.outputs.instance_ip }} "cd /etc/TLMRIS/scripts && pwd && sudo bash build.sh"
+        ssh ec2-user@${{ env.INSTANCE_IP }} "mkdir -p /home/ec2-user/r6-dissect-TL-Fork"
+        rsync -avz --exclude '.git' --exclude 'node_modules' ./ ec2-user@${{ env.INSTANCE_IP }}:/home/ec2-user/r6-dissect-TL-Fork
+        ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mkdir -p /etc/TLMRIS && cd /etc/TLMRIS && sudo find . -maxdepth 1 ! -name 'data' ! -name '.' -exec rm -rf {} +"
+        ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mv /home/ec2-user/r6-dissect-TL-Fork/* /etc/TLMRIS"
+        ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mv /home/ec2-user/service-account-file.json /etc/TLMRIS/sheets-export-runner/service-account-file.json"
+        ssh ec2-user@${{ env.INSTANCE_IP }} "cd /etc/TLMRIS/scripts && pwd && sudo bash build.sh"
 
     - name: Create AMI from Instance
       id: create_ami
       run: |
-        AMI_ID=$(aws ec2 create-image --instance-id ${{ steps.get_instance_id.outputs.instance_id }} --name "my-app-ami-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
-        echo "::set-output name=ami_id::$AMI_ID"
+        AMI_ID=$(aws ec2 create-image --instance-id ${{ env.INSTANCE_ID }} --name "my-app-ami-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
+        echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
 
     - name: Wait for AMI to become available
       run: |
-        aws ec2 wait image-available --image-ids ${{ steps.create_ami.outputs.ami_id }}
+        aws ec2 wait image-available --image-ids ${{ env.AMI_ID }}
 
     - name: Update Auto Scaling Group with new AMI
       run: |
         LAUNCH_TEMPLATE_ID=$(aws ec2 describe-launch-templates --filters "Name=launch-template-name,Values=MyLaunchTemplate" --query "LaunchTemplates[0].LaunchTemplateId" --output text)
         LATEST_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id $LAUNCH_TEMPLATE_ID --query "max_by(LaunchTemplateVersions, &VersionNumber).VersionNumber" --output text)
-        aws ec2 create-launch-template-version --launch-template-id $LAUNCH_TEMPLATE_ID --version-description "New AMI version" --source-version $LATEST_VERSION --launch-template-data "{\"ImageId\":\"${{ steps.create_ami.outputs.ami_id }}\"}"
+        aws ec2 create-launch-template-version --launch-template-id $LAUNCH_TEMPLATE_ID --version-description "New AMI version" --source-version $LATEST_VERSION --launch-template-data "{\"ImageId\":\"${{ env.AMI_ID }}\"}"
         NEW_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id $LAUNCH_TEMPLATE_ID --query "max_by(LaunchTemplateVersions, &VersionNumber).VersionNumber" --output text)
         aws autoscaling update-auto-scaling-group --auto-scaling-group-name MySpotFleetASG --launch-template "LaunchTemplateId=$LAUNCH_TEMPLATE_ID,Version=$NEW_VERSION"
 
