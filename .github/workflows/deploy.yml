@@ -23,7 +23,7 @@ jobs:
     - name: Get Instance ID
       id: get_instance_id
       run: |
-        INSTANCE_ID=$(aws ec2 describe-auto-scaling-instances --query 'AutoScalingInstances[?AutoScalingGroupName==`MySpotFleetASG`].InstanceId' --output text)
+        INSTANCE_ID=$(aws autoscaling describe-auto-scaling-instances --query 'AutoScalingInstances[?AutoScalingGroupName==`MySpotFleetASG`].InstanceId' --output text)
         echo "::set-output name=instance_id::$INSTANCE_ID"
 
     - name: Get Instance Public IP
