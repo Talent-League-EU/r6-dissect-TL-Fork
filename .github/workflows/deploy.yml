@@ -20,10 +20,14 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-west-2
 
+    - name: Debug Auto Scaling Instances
+      run: |
+        aws autoscaling describe-auto-scaling-instances --query 'AutoScalingInstances[*].[InstanceId,AutoScalingGroupName]' --output table
+
     - name: Get Instance ID
       id: get_instance_id
       run: |
-        INSTANCE_ID=$(aws autoscaling describe-auto-scaling-instances --query 'AutoScalingInstances[?AutoScalingGroupName==`MySpotFleetASG`].InstanceId' --output text)
+        INSTANCE_ID=$(aws autoscaling describe-auto-scaling-instances --query 'AutoScalingInstances[?AutoScalingGroupName==`TLMRIS-AUTO-SCALING-GROUP-SPOT`].InstanceId' --output text)
         echo "INSTANCE_ID=$INSTANCE_ID"
         echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
 
@@ -36,6 +40,9 @@ jobs:
         INSTANCE_IP=$(aws ec2 describe-instances --instance-ids ${{ env.INSTANCE_ID }} --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
         echo "INSTANCE_IP=$INSTANCE_IP"
         echo "INSTANCE_IP=$INSTANCE_IP" >> $GITHUB_ENV
+
+    - name: Print Instance Public IP for Debugging
+      run: echo ${{ env.INSTANCE_IP }}
 
     - name: Set up SSH key
       run: |
@@ -85,22 +92,8 @@ jobs:
 
     - name: Update Auto Scaling Group with new AMI
       run: |
-        LAUNCH_TEMPLATE_ID=$(aws ec2 describe-launch-templates --filters "Name=launch-template-name,Values=MyLaunchTemplate" --query "LaunchTemplates[0].LaunchTemplateId" --output text)
+        LAUNCH_TEMPLATE_ID=$(aws ec2 describe-launch-templates --filters "Name=launch-template-name,Values=TLMRIS-LAUNCH-TEMPLATE-SPOT" --query "LaunchTemplates[0].LaunchTemplateId" --output text)
         echo "LAUNCH_TEMPLATE_ID=$LAUNCH_TEMPLATE_ID"
         LATEST_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id $LAUNCH_TEMPLATE_ID --query "max_by(LaunchTemplateVersions, &VersionNumber).VersionNumber" --output text)
         echo "LATEST_VERSION=$LATEST_VERSION"
-        aws ec2 create-launch-template-version --launch-template-id $LAUNCH_TEMPLATE_ID --version-description "New AMI version" --source-version $LATEST_VERSION --launch-template-data "{\"ImageId\":\"${{ env.AMI_ID }}\"}"
-        NEW_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id $LAUNCH_TEMPLATE_ID --query "max_by(LaunchTemplateVersions, &VersionNumber).VersionNumber" --output text)
-        echo "NEW_VERSION=$NEW_VERSION"
-        aws autoscaling update-auto-scaling-group --auto-scaling-group-name MySpotFleetASG --launch-template "LaunchTemplateId=$LAUNCH_TEMPLATE_ID,Version=$NEW_VERSION"
-
-    - name: Delete old AMI
-      run: |
-        OLD_AMI_ID=$(aws ec2 describe-images --filters "Name=name,Values=my-app-ami-*" --query 'Images | sort_by(@, &CreationDate)[-2].ImageId' --output text)
-        echo "OLD_AMI_ID=$OLD_AMI_ID"
-        if [ "$OLD_AMI_ID" != "" ]; then
-          aws ec2 deregister-image --image-id $OLD_AMI_ID
-          SNAPSHOT_ID=$(aws ec2 describe-snapshots --filters "Name=description,Values=*$OLD_AMI_ID*" --query 'Snapshots[0].SnapshotId' --output text)
-          echo "SNAPSHOT_ID=$SNAPSHOT_ID"
-          aws ec2 delete-snapshot --snapshot-id $SNAPSHOT_ID
-        fi
+        aws ec2 create-launch-template-version --launch-template-id $LAUNCH_TEMPLATE_ID --version-description "New AMI version" --source-versio
