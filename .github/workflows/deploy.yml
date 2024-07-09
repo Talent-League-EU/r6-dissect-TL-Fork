@@ -77,10 +77,12 @@ jobs:
         ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mv /home/ec2-user/r6-dissect-TL-Fork/* /etc/TLMRIS"
         ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mv /home/ec2-user/service-account-file.json /etc/TLMRIS/sheets-export-runner/service-account-file.json"
         ssh ec2-user@${{ env.INSTANCE_IP }} "cd /etc/TLMRIS/scripts && pwd && sudo bash build.sh"
-
+      
     - name: Create AMI from Instance
       id: create_ami
       run: |
+        echo "Sleeping for 30 seconds to ensure stability before creating AMI..."
+        sleep 30
         echo "Creating AMI from instance ID: ${{ env.INSTANCE_ID }}"
         AMI_ID=$(aws ec2 create-image --instance-id ${{ env.INSTANCE_ID }} --name "TLMRIS-IMAGE-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
         echo "AMI_ID=$AMI_ID"
