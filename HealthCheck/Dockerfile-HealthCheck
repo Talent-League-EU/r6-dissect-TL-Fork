@@ -1,0 +1,19 @@
+FROM python:3.9-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+
+# Set working directory
+WORKDIR /app
+
+# Install dependencies
+RUN pip install Flask
+
+# Copy the application
+COPY HealthCheck.py /app/
+
+# Expose the port the app runs on
+EXPOSE 80
+
+# Run the application
+CMD ["python", "HealthCheck.py"]

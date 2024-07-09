@@ -53,6 +53,16 @@ services:
         - "5001:5001"
     user: root
 
+  health-check:
+    build:
+      context: ./HealthCheck
+      dockerfile: Dockerfile-HealthCheck
+    ports:
+        - "5005:80"
+    user: root
+    environment:
+      - FLASK_ENV=development
+
   nginx:
     image: nginx:latest
     ports:
@@ -65,3 +75,4 @@ services:
       - sheets-export
       - file-upload-app
       - admin-portal
+      - health-check
