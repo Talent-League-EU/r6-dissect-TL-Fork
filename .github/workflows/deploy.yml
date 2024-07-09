@@ -82,7 +82,7 @@ jobs:
       id: create_ami
       run: |
         echo "Creating AMI from instance ID: ${{ env.INSTANCE_ID }}"
-        AMI_ID=$(aws ec2 create-image --instance-id ${{ env.INSTANCE_ID }} --name "my-app-ami-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
+        AMI_ID=$(aws ec2 create-image --instance-id ${{ env.INSTANCE_ID }} --name "TLMRIS-IMAGE--$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
         echo "AMI_ID=$AMI_ID"
         echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
 
@@ -96,4 +96,17 @@ jobs:
         echo "LAUNCH_TEMPLATE_ID=$LAUNCH_TEMPLATE_ID"
         LATEST_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id $LAUNCH_TEMPLATE_ID --query "max_by(LaunchTemplateVersions, &VersionNumber).VersionNumber" --output text)
         echo "LATEST_VERSION=$LATEST_VERSION"
-        aws ec2 create-launch-template-version --launch-template-id $LAUNCH_TEMPLATE_ID --version-description "New AMI version" --source-versio
+        NEW_VERSION=$(aws ec2 create-launch-template-version --launch-template-id $LAUNCH_TEMPLATE_ID --version-description "New AMI version" --source-version $LATEST_VERSION --launch-template-data "{\"ImageId\":\"${{ env.AMI_ID }}\"}" --query 'LaunchTemplateVersion.VersionNumber' --output text)
+        echo "NEW_VERSION=$NEW_VERSION"
+        aws autoscaling update-auto-scaling-group --auto-scaling-group-name TLMRIS-AUTO-SCALING-GROUP-SPOT --launch-template "LaunchTemplateId=$LAUNCH_TEMPLATE_ID,Version=$NEW_VERSION"
+
+    - name: Delete old AMI
+      run: |
+        OLD_AMI_ID=$(aws ec2 describe-images --filters "Name=name,Values=TLMRIS-IMAGE-*" --query 'Images | sort_by(@, &CreationDate)[-2].ImageId' --output text)
+        echo "OLD_AMI_ID=$OLD_AMI_ID"
+        if [ "$OLD_AMI_ID" != "" ]; then
+          aws ec2 deregister-image --image-id $OLD_AMI_ID
+          SNAPSHOT_ID=$(aws ec2 describe-snapshots --filters "Name=description,Values=*$OLD_AMI_ID*" --query 'Snapshots[0].SnapshotId' --output text)
+          echo "SNAPSHOT_ID=$SNAPSHOT_ID"
+          aws ec2 delete-snapshot --snapshot-id $SNAPSHOT_ID
+        fi
