@@ -24,12 +24,17 @@ jobs:
       id: get_instance_id
       run: |
         INSTANCE_ID=$(aws autoscaling describe-auto-scaling-instances --query 'AutoScalingInstances[?AutoScalingGroupName==`MySpotFleetASG`].InstanceId' --output text)
+        echo "INSTANCE_ID=$INSTANCE_ID"
         echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+
+    - name: Print Instance ID for Debugging
+      run: echo ${{ env.INSTANCE_ID }}
 
     - name: Get Instance Public IP
       id: get_instance_ip
       run: |
         INSTANCE_IP=$(aws ec2 describe-instances --instance-ids ${{ env.INSTANCE_ID }} --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
+        echo "INSTANCE_IP=$INSTANCE_IP"
         echo "INSTANCE_IP=$INSTANCE_IP" >> $GITHUB_ENV
 
     - name: Set up SSH key
@@ -57,19 +62,21 @@ jobs:
         ssh ec2-user@${{ env.INSTANCE_IP }} "base64 -d /home/ec2-user/service-account-file.json.base64 > /home/ec2-user/service-account-file.json"
         ssh ec2-user@${{ env.INSTANCE_IP }} "cat /home/ec2-user/service-account-file.json" # Verify the decoded JSON content
 
-    - name: Deploy to EC2
-      run: |
-        ssh ec2-user@${{ env.INSTANCE_IP }} "mkdir -p /home/ec2-user/r6-dissect-TL-Fork"
-        rsync -avz --exclude '.git' --exclude 'node_modules' ./ ec2-user@${{ env.INSTANCE_IP }}:/home/ec2-user/r6-dissect-TL-Fork
-        ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mkdir -p /etc/TLMRIS && cd /etc/TLMRIS && sudo find . -maxdepth 1 ! -name 'data' ! -name '.' -exec rm -rf {} +"
-        ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mv /home/ec2-user/r6-dissect-TL-Fork/* /etc/TLMRIS"
-        ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mv /home/ec2-user/service-account-file.json /etc/TLMRIS/sheets-export-runner/service-account-file.json"
-        ssh ec2-user@${{ env.INSTANCE_IP }} "cd /etc/TLMRIS/scripts && pwd && sudo bash build.sh"
+    # - name: Deploy to EC2
+    #   run: |
+    #     ssh ec2-user@${{ env.INSTANCE_IP }} "mkdir -p /home/ec2-user/r6-dissect-TL-Fork"
+    #     rsync -avz --exclude '.git' --exclude 'node_modules' ./ ec2-user@${{ env.INSTANCE_IP }}:/home/ec2-user/r6-dissect-TL-Fork
+    #     ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mkdir -p /etc/TLMRIS && cd /etc/TLMRIS && sudo find . -maxdepth 1 ! -name 'data' ! -name '.' -exec rm -rf {} +"
+    #     ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mv /home/ec2-user/r6-dissect-TL-Fork/* /etc/TLMRIS"
+    #     ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mv /home/ec2-user/service-account-file.json /etc/TLMRIS/sheets-export-runner/service-account-file.json"
+    #     ssh ec2-user@${{ env.INSTANCE_IP }} "cd /etc/TLMRIS/scripts && pwd && sudo bash build.sh"
 
     - name: Create AMI from Instance
       id: create_ami
       run: |
+        echo "Creating AMI from instance ID: ${{ env.INSTANCE_ID }}"
         AMI_ID=$(aws ec2 create-image --instance-id ${{ env.INSTANCE_ID }} --name "my-app-ami-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
+        echo "AMI_ID=$AMI_ID"
         echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
 
     - name: Wait for AMI to become available
@@ -79,16 +86,21 @@ jobs:
     - name: Update Auto Scaling Group with new AMI
       run: |
         LAUNCH_TEMPLATE_ID=$(aws ec2 describe-launch-templates --filters "Name=launch-template-name,Values=MyLaunchTemplate" --query "LaunchTemplates[0].LaunchTemplateId" --output text)
+        echo "LAUNCH_TEMPLATE_ID=$LAUNCH_TEMPLATE_ID"
         LATEST_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id $LAUNCH_TEMPLATE_ID --query "max_by(LaunchTemplateVersions, &VersionNumber).VersionNumber" --output text)
+        echo "LATEST_VERSION=$LATEST_VERSION"
         aws ec2 create-launch-template-version --launch-template-id $LAUNCH_TEMPLATE_ID --version-description "New AMI version" --source-version $LATEST_VERSION --launch-template-data "{\"ImageId\":\"${{ env.AMI_ID }}\"}"
         NEW_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id $LAUNCH_TEMPLATE_ID --query "max_by(LaunchTemplateVersions, &VersionNumber).VersionNumber" --output text)
+        echo "NEW_VERSION=$NEW_VERSION"
         aws autoscaling update-auto-scaling-group --auto-scaling-group-name MySpotFleetASG --launch-template "LaunchTemplateId=$LAUNCH_TEMPLATE_ID,Version=$NEW_VERSION"
 
     - name: Delete old AMI
       run: |
         OLD_AMI_ID=$(aws ec2 describe-images --filters "Name=name,Values=my-app-ami-*" --query 'Images | sort_by(@, &CreationDate)[-2].ImageId' --output text)
+        echo "OLD_AMI_ID=$OLD_AMI_ID"
         if [ "$OLD_AMI_ID" != "" ]; then
           aws ec2 deregister-image --image-id $OLD_AMI_ID
           SNAPSHOT_ID=$(aws ec2 describe-snapshots --filters "Name=description,Values=*$OLD_AMI_ID*" --query 'Snapshots[0].SnapshotId' --output text)
+          echo "SNAPSHOT_ID=$SNAPSHOT_ID"
           aws ec2 delete-snapshot --snapshot-id $SNAPSHOT_ID
         fi
