@@ -82,7 +82,7 @@ jobs:
       id: create_ami
       run: |
         echo "Creating AMI from instance ID: ${{ env.INSTANCE_ID }}"
-        AMI_ID=$(aws ec2 create-image --instance-id ${{ env.INSTANCE_ID }} --name "TLMRIS-IMAGE--$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
+        AMI_ID=$(aws ec2 create-image --instance-id ${{ env.INSTANCE_ID }} --name "TLMRIS-IMAGE-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
         echo "AMI_ID=$AMI_ID"
         echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
 
