@@ -1,51 +1,6 @@
 version: '3.8'
 
 services:
-  admin-portal:
-    build: 
-      context: .
-      dockerfile: admin-portal/Dockerfile-admin-portal
-    ports:
-      - "5004:5004"
-    environment:
-      - FLASK_ENV=development
-    depends_on:
-      - file-monitor
-      - file-export
-      - sheets-export
-
-  file-monitor:
-    build:
-      context: .
-      dockerfile: dissect-runner/Dockerfile-r6-dissect-runner
-    ports:
-      - "5000:5000"
-    user: root
-    environment:
-      - FLASK_ENV=development
-
-  file-export:
-    build:
-      context: .
-      dockerfile: export-runner/Dockerfile-r6-dissect-export-runner
-    ports:
-      - "5002:5002"
-    user: root
-    environment:
-      - FLASK_ENV=development
-
-  sheets-export:
-    build:
-      context: .
-      dockerfile: sheets-export-runner/Dockerfile-sheets-exporter
-    ports:
-      - "5003:5003"
-    user: root
-    environment:
-      - FLASK_ENV=development
-    volumes:
-      - /etc/TLMRIS/sheets-export-runner/service-account-file.json:/app/service-account-file.json:ro
-
   file-upload-app:
     build:
       context: ./file-upload-app
@@ -70,9 +25,5 @@ services:
     volumes:
       - /etc/TLMRIS/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - file-monitor
-      - file-export
-      - sheets-export
       - file-upload-app
-      - admin-portal
       - health-check

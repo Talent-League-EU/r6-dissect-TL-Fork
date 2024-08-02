@@ -204,7 +204,7 @@ const App = () => {
           <option value="NXT">NXT</option>
           <option value="OWN">OWNED ESPORTS</option>
           <option value="PAN">PANNUHUONE</option>
-          <option value="PNG">PINGU ESPORTS</option>
+          <option value="NYX">NYXIS</option>
           <option value="PTC">PODEROSA TEAM CLAW</option>
           <option value="SHE">SOULS HEART ESPORTS</option>
           <option value="SOK">SOKUDO ESPORTS</option>
@@ -227,7 +227,7 @@ const App = () => {
           <option value="NXT">NXT</option>
           <option value="OWN">OWNED ESPORTS</option>
           <option value="PAN">PANNUHUONE</option>
-          <option value="PNG">PINGU ESPORTS</option>
+          <option value="NYX">NYXIS</option>
           <option value="PTC">PODEROSA TEAM CLAW</option>
           <option value="SHE">SOULS HEART ESPORTS</option>
           <option value="SOK">SOKUDO ESPORTS</option>
