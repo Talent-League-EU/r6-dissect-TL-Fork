@@ -41,42 +41,42 @@ jobs:
         echo "INSTANCE_IP=$INSTANCE_IP"
         echo "INSTANCE_IP=$INSTANCE_IP" >> $GITHUB_ENV
 
-    - name: Print Instance Public IP for Debugging
-      run: echo ${{ env.INSTANCE_IP }}
+    # - name: Print Instance Public IP for Debugging
+    #   run: echo ${{ env.INSTANCE_IP }}
 
-    - name: Set up SSH key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ env.INSTANCE_IP }} >> ~/.ssh/known_hosts
+    # - name: Set up SSH key
+    #   run: |
+    #     mkdir -p ~/.ssh
+    #     echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+    #     chmod 600 ~/.ssh/id_rsa
+    #     ssh-keyscan -H ${{ env.INSTANCE_IP }} >> ~/.ssh/known_hosts
 
-    - name: Replace placeholders with double quotes and create JSON file
-      run: |
-        echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}" | sed 's/'\''/"/g' > service-account-file.json
+    # - name: Replace placeholders with double quotes and create JSON file
+    #   run: |
+    #     echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}" | sed 's/'\''/"/g' > service-account-file.json
 
-    - name: Base64 encode the service account JSON
-      run: |
-        cat service-account-file.json | base64 > service-account-file.json.base64
-        cat service-account-file.json.base64 # Print the base64 encoded string for debugging
+    # - name: Base64 encode the service account JSON
+    #   run: |
+    #     cat service-account-file.json | base64 > service-account-file.json.base64
+    #     cat service-account-file.json.base64 # Print the base64 encoded string for debugging
 
-    - name: Transfer the base64 encoded JSON to EC2
-      run: |
-        scp service-account-file.json.base64 ec2-user@${{ env.INSTANCE_IP }}:/home/ec2-user/service-account-file.json.base64
+    # - name: Transfer the base64 encoded JSON to EC2
+    #   run: |
+    #     scp service-account-file.json.base64 ec2-user@${{ env.INSTANCE_IP }}:/home/ec2-user/service-account-file.json.base64
 
-    - name: Decode the base64 JSON on EC2
-      run: |
-        ssh ec2-user@${{ env.INSTANCE_IP }} "base64 -d /home/ec2-user/service-account-file.json.base64 > /home/ec2-user/service-account-file.json"
-        ssh ec2-user@${{ env.INSTANCE_IP }} "cat /home/ec2-user/service-account-file.json" # Verify the decoded JSON content
+    # - name: Decode the base64 JSON on EC2
+    #   run: |
+    #     ssh ec2-user@${{ env.INSTANCE_IP }} "base64 -d /home/ec2-user/service-account-file.json.base64 > /home/ec2-user/service-account-file.json"
+    #     ssh ec2-user@${{ env.INSTANCE_IP }} "cat /home/ec2-user/service-account-file.json" # Verify the decoded JSON content
 
-    - name: Deploy to EC2
-      run: |
-        ssh ec2-user@${{ env.INSTANCE_IP }} "mkdir -p /home/ec2-user/r6-dissect-TL-Fork"
-        rsync -avz --exclude '.git' --exclude 'node_modules' ./ ec2-user@${{ env.INSTANCE_IP }}:/home/ec2-user/r6-dissect-TL-Fork
-        ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mkdir -p /etc/TLMRIS && cd /etc/TLMRIS && sudo find . -maxdepth 1 ! -name 'data' ! -name '.' -exec rm -rf {} +"
-        ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mv /home/ec2-user/r6-dissect-TL-Fork/* /etc/TLMRIS"
-        ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mv /home/ec2-user/service-account-file.json /etc/TLMRIS/sheets-export-runner/service-account-file.json"
-        ssh ec2-user@${{ env.INSTANCE_IP }} "cd /etc/TLMRIS/scripts && pwd && sudo bash build.sh"
+    # - name: Deploy to EC2
+    #   run: |
+    #     ssh ec2-user@${{ env.INSTANCE_IP }} "mkdir -p /home/ec2-user/r6-dissect-TL-Fork"
+    #     rsync -avz --exclude '.git' --exclude 'node_modules' ./ ec2-user@${{ env.INSTANCE_IP }}:/home/ec2-user/r6-dissect-TL-Fork
+    #     ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mkdir -p /etc/TLMRIS && cd /etc/TLMRIS && sudo find . -maxdepth 1 ! -name 'data' ! -name '.' -exec rm -rf {} +"
+    #     ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mv /home/ec2-user/r6-dissect-TL-Fork/* /etc/TLMRIS"
+    #     ssh ec2-user@${{ env.INSTANCE_IP }} "sudo mv /home/ec2-user/service-account-file.json /etc/TLMRIS/sheets-export-runner/service-account-file.json"
+    #     ssh ec2-user@${{ env.INSTANCE_IP }} "cd /etc/TLMRIS/scripts && pwd && sudo bash build.sh"
       
     - name: Create AMI from Instance
       id: create_ami
